@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="ru"><head>
 <meta charset="utf-8">
-<title>крест · демонстрация на примере</title>
+<title>крест · поле</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Рабочая демонстрация креста на выдуманном дне: три раскладки, окно каждого луча, полный и частичный переворот с откатом.">
+<meta name="description" content="Поле креста на собранном дне: три раскладки, окно каждого луча, полный и частичный переворот с откатом.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="крест.css">
 </head>
@@ -14,19 +14,14 @@
   <div class="mark" id="mark" role="img" aria-label="знак креста"></div>
   <div>
     <div class="name">крест</div>
-    <div class="sub">демонстрация · выдуманный день</div>
+    <div class="sub">поле · собранный день</div>
   </div>
-  <nav class="nav">
-    
-    
-    
-  </nav>
 </div>
 
 <header class="hero">
-  <div class="kick">ВСЕ ДАННЫЕ ВЫДУМАНЫ</div>
-  <h1>день образца, 18 сентября</h1>
-  <p class="lead">Смета, отчёт по гранту, подрядчик и просроченный акт. Ни одного настоящего человека, обещания или задачи: файл <code>example.json</code> написан для показа механики.</p>
+  <div class="kick">СОБРАННЫЙ ДЕНЬ</div>
+  <h1 id="title">собранный день</h1>
+  <p class="lead">Поле читает <code>день.json</code>, который пишет <code>собрать.py</code> из подключённых источников. Пока свои источники не подключены, это образцы из папки <code>источники/</code> с датами, перенесёнными на сегодня. Выдуманный день из <code>пример/example.json</code> открывается адресом <code>?файл=../пример/example.json</code>.</p>
 </header>
 
 <section>
@@ -52,7 +47,7 @@
 </section>
 
 <footer>
-  выдуманный пример ·  · 
+  поле открытой версии · сервер слушает только 127.0.0.1
 </footer>
 </div>
 
@@ -63,6 +58,8 @@
 AIMVoxel.render(document.getElementById('mark'), window.KREST_VOXEL, {unit:4, interactive:true, label:'крест'});
 fetch(new URLSearchParams(location.search).get('файл') || '../день.json').then(function(r){return r.json();}).then(function(d){
   KREST.mount(document.getElementById('k'), d, {});
+  var day = d.дата && new Date(d.дата + 'T12:00:00');
+  if (day && !isNaN(day)) document.getElementById('title').textContent = 'собранный день, ' + day.toLocaleDateString('ru-RU', {day: 'numeric', month: 'long'});
   var t = document.getElementById('day');
   d.факты.forEach(function(f){
     var tr = document.createElement('tr');
@@ -70,7 +67,7 @@ fetch(new URLSearchParams(location.search).get('файл') || '../день.json'
     t.appendChild(tr);
   });
 }).catch(function(e){
-  document.getElementById('k').innerHTML = '<div class="card">пример не загрузился: страница открыта как файл. Подними локальный сервер и открой по http.</div>';
+  document.getElementById('k').innerHTML = '<div class="card">день не загрузился: нет <code>день.json</code> или страница открыта как файл. Собери день командой <code>python3 собрать.py</code> и открой поле через <code>./запустить.sh</code>.</div>';
 });
 </script>
 </body></html>

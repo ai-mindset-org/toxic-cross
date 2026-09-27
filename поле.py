@@ -70,6 +70,21 @@ class Обработчик(http.server.SimpleHTTPRequestHandler):
         except (UnicodeEncodeError, UnicodeDecodeError):
             return self.path
 
+    def отказ(self, луч):
+        """Отказ по неизвестному лучу.
+
+        Причина статуса HTTP кодируется в latin-1, и кириллица в ней роняет поток
+        обработчика целиком: клиент получает обрыв соединения вместо кода. Поэтому
+        причина латиницей, а объяснение уходит в тело ответа.
+        """
+        тело = ("луч должен быть одним из: " + ", ".join(sorted(ЛУЧИ))
+                + (f"\nпришло: {луч}" if луч else "\nлуч не передан")).encode("utf-8")
+        self.send_response(400, "Bad Request")
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(тело)))
+        self.end_headers()
+        self.wfile.write(тело)
+
     def do_GET(self):
         адрес = urllib.parse.urlparse(self._путь())
         if urllib.parse.unquote(адрес.path) != "/отклик":
@@ -81,7 +96,7 @@ class Обработчик(http.server.SimpleHTTPRequestHandler):
         текст = (поля.get("текст") or [""])[0]
 
         if луч not in ЛУЧИ:
-            self.send_error(400, f"луч должен быть одним из: {', '.join(sorted(ЛУЧИ))}")
+            self.отказ(луч)
             return
 
         всего = записать(событие, луч, текст)

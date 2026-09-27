@@ -1,5 +1,8 @@
-/* крест · публичная витрина · профиль N1 дизайн-системы AIM apps */
-@import url("aim-mini-apps.css");
+/* крест · поле открытой версии · профиль N1 дизайн-системы AIM apps.
+   Шрифт лежит рядом: общий слой семейства в репозиторий не входит, поэтому гарнитура объявлена здесь. */
+@font-face{font-family:AIMPlex;src:url("aim-plex-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:AIMPlex;src:url("aim-plex-500.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:AIMPlex;src:url("aim-plex-600.woff2") format("woff2");font-weight:600;font-display:swap}
 
 :root{
   --paper:#f5f6f8; --surface:#fff; --ink:#202124; --muted:#6b6e75;
