@@ -1,0 +1,33 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//крест//образец дня//RU
+X-WR-CALNAME:образец
+BEGIN:VEVENT
+UID:обр-1@example.invalid
+SUMMARY:синхрон по проекту
+DTSTART:20260101T093000
+DTEND:20260101T100000
+ATTENDEE;CN=коллега:mailto:a@example.invalid
+ATTENDEE;CN=коллега:mailto:b@example.invalid
+END:VEVENT
+BEGIN:VEVENT
+UID:обр-2@example.invalid
+SUMMARY:разговор с заказчиком про смету
+DTSTART:20260101T120000
+DTEND:20260101T134500
+ATTENDEE;CN=заказчик:mailto:c@example.invalid
+END:VEVENT
+BEGIN:VEVENT
+UID:обр-3@example.invalid
+SUMMARY:ревью подрядчика
+DTSTART:20260101T160000
+DTEND:20260101T163000
+ATTENDEE;CN=подрядчик:mailto:d@example.invalid
+END:VEVENT
+BEGIN:VEVENT
+UID:обр-4@example.invalid
+SUMMARY:час без встреч, отложен заранее
+DTSTART:20260101T173000
+DTEND:20260101T183000
+END:VEVENT
+END:VCALENDAR

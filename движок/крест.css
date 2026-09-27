@@ -1,0 +1,98 @@
+/* крест · публичная витрина · профиль N1 дизайн-системы AIM apps */
+@import url("aim-mini-apps.css");
+
+:root{
+  --paper:#f5f6f8; --surface:#fff; --ink:#202124; --muted:#6b6e75;
+  --line:#e8e9ed; --line2:#c9cbd1; --wash:#f2f3f5;
+  --red:#db303d; --dark:#b3261e; --green:#287958; --amber:#98600b;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:14px/1.62 "AIMPlex","IBM Plex Mono",ui-monospace,Menlo,monospace;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 110px}
+a{color:var(--dark)}
+b,strong{font-weight:500}
+h1{font-size:30px;font-weight:500;letter-spacing:-.01em;margin:0 0 10px}
+h2{font-size:11px;letter-spacing:.14em;color:var(--muted);font-weight:500;margin:0 0 6px;text-transform:uppercase}
+h3{font-size:19px;font-weight:500;letter-spacing:-.01em;margin:0 0 14px}
+h4{font-size:14px;font-weight:500;margin:22px 0 8px}
+p{margin:0 0 14px;max-width:64ch}
+ul,ol{margin:0 0 14px;padding-left:18px;max-width:64ch}
+li{margin-bottom:6px}
+code,kbd{background:var(--wash);border:1px solid var(--line);padding:1px 5px;font-size:12px;border-radius:2px}
+kbd{border-bottom-width:2px}
+pre{background:var(--surface);border:1px solid var(--line);padding:14px 16px;overflow:auto;font-size:12px;line-height:1.55;border-radius:2px}
+pre code{background:none;border:0;padding:0}
+
+/* шапка */
+.head{display:flex;align-items:center;gap:14px;padding:26px 0 0}
+.mark{width:56px;height:56px;flex:none}
+.mark svg{display:block;width:100%;height:100%}
+.head .name{font-size:13px;font-weight:500}
+.head .sub{font-size:11px;color:var(--muted)}
+.nav{margin-left:auto;display:flex;gap:14px;font-size:11px}
+.nav a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+.nav a:hover,.nav a[aria-current=page]{color:var(--red);border-color:var(--red)}
+header.hero{padding:44px 0 38px;border-bottom:1px solid var(--line)}
+.kick{font-size:10px;letter-spacing:.14em;color:var(--red);margin-bottom:14px}
+.lead{font-size:15px;color:var(--muted);max-width:58ch}
+section{padding:46px 0;border-bottom:1px solid var(--line)}
+.note{border-left:2px solid var(--red);padding:2px 0 2px 12px;color:var(--dark);font-size:12.5px;margin:16px 0;max-width:60ch}
+.toc{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:11px;padding:20px 0 0}
+.toc a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+.toc a:hover{color:var(--red);border-color:var(--red)}
+footer{padding:40px 0;font-size:11px;color:var(--muted)}
+
+table{border-collapse:collapse;width:100%;font-size:12px;margin:18px 0}
+th{text-align:left;font-weight:500;font-size:10px;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line2);padding:6px 10px 6px 0}
+td{border-bottom:1px solid var(--line);padding:7px 10px 7px 0;vertical-align:top}
+td:first-child,th:first-child{color:var(--muted)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:20px 0}
+.card{background:var(--surface);border:1px solid var(--line);padding:14px;border-radius:2px}
+.card .t{font-size:11px;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.card p{font-size:12.5px;margin:0}
+.btn{border:1px solid var(--ink);background:var(--paper);color:var(--ink);padding:5px 11px;font:inherit;font-size:11px;
+  cursor:pointer;border-radius:2px;transition:background var(--aim-s-motion-state,160ms) var(--ease),color 160ms var(--ease)}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+
+/* инструмент */
+.krest{background:var(--surface);border:1px solid var(--line);margin:22px 0;border-radius:2px;overflow:hidden}
+.krest .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 12px;border-bottom:1px solid var(--line);font-size:11px}
+.krest .bar .sep{flex:1}
+.krest .stage{position:relative;background:var(--surface)}
+.krest svg.field{display:block;width:100%;height:auto;touch-action:manipulation}
+.krest .foot{display:flex;gap:10px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+.krest .roll{color:var(--red)}
+.krest .src{display:flex;gap:10px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+.krest .src span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;background:var(--line2);vertical-align:1px}
+.krest .src span[data-s=live]::before{background:var(--green)}
+.krest .src span[data-s=quiet]::before{background:var(--amber)}
+.krest .src span[data-s=dead]::before{background:var(--red)}
+.krest .card-el{padding:12px;border-top:1px solid var(--line);font-size:12px;background:var(--wash)}
+.krest .card-el .l{font-size:10px;letter-spacing:.06em;color:var(--muted)}
+.krest .card-el .flip{color:var(--dark)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:11px;line-height:1.45;
+  padding:7px 9px;max-width:260px;border-radius:2px;opacity:0;transition:opacity 120ms var(--ease);z-index:4}
+.tip.on{opacity:1}
+.tip .f{color:#ffb4b9;display:block;margin-top:4px}
+.picker{display:inline-flex;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+.picker button{border:0;border-right:1px solid var(--line2);background:var(--surface);font:inherit;font-size:11px;
+  padding:4px 10px;cursor:pointer;color:var(--muted)}
+.picker button:last-child{border-right:0}
+.picker button[aria-pressed=true]{background:var(--ink);color:#fff}
+@media(max-width:640px){
+  h1{font-size:23px}
+  .wrap{padding:0 16px 80px}
+  .nav{width:100%;margin:8px 0 0}
+  .head{flex-wrap:wrap}
+  header.hero{padding:30px 0 26px}
+  section{padding:34px 0}
+  .krest .bar{font-size:10.5px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

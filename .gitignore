@@ -1,0 +1,8 @@
+день.json
+день.js
+история/
+источники/отклики.json
+источники/*.local.json
+__pycache__/
+*.pyc
+.DS_Store

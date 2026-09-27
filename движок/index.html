@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<title>крест · демонстрация на примере</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Рабочая демонстрация креста на выдуманном дне: три раскладки, окно каждого луча, полный и частичный переворот с откатом.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="крест.css">
+</head>
+<body>
+<div class="wrap">
+
+<div class="head">
+  <div class="mark" id="mark" role="img" aria-label="знак креста"></div>
+  <div>
+    <div class="name">крест</div>
+    <div class="sub">демонстрация · выдуманный день</div>
+  </div>
+  <nav class="nav">
+    
+    
+    
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="kick">ВСЕ ДАННЫЕ ВЫДУМАНЫ</div>
+  <h1>день образца, 18 сентября</h1>
+  <p class="lead">Смета, отчёт по гранту, подрядчик и просроченный акт. Ни одного настоящего человека, обещания или задачи: файл <code>example.json</code> написан для показа механики.</p>
+</header>
+
+<section>
+  <h2>01 · ПОЛЕ</h2>
+  <div id="k"></div>
+  <p style="font-size:12.5px;color:var(--muted);max-width:66ch">Наведение показывает вес, источник и флип. Клик по блоку открывает карточку под полем. У каждого луча свой пульт: окно шкалы и переворот только этого луча.</p>
+</section>
+
+<section>
+  <h2>02 · ЧТО ПРОБОВАТЬ</h2>
+  <div class="cards">
+    <div class="card"><div class="t">частичный переворот</div><p>Переверни один луч и подожди. Соседние отыграют вес обратно: в нижней строке пойдёт процент отката.</p></div>
+    <div class="card"><div class="t">полный переворот</div><p>Клавиша <kbd>f</kbd>. Веса падают до четверти, дефициты гаснут, шар возвращается к центру и остаётся там.</p></div>
+    <div class="card"><div class="t">окно луча</div><p><code>[ − ]</code> и <code>[ + ]</code> у имени луча. Сузил окно: далёкое ушло за край и посчиталось строкой, ближнее разъехалось.</p></div>
+    <div class="card"><div class="t">раскладка время</div><p>Горизонталь становится только временем, вертикаль только весом. Просроченный акт встаёт слева от «сейчас».</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>03 · ЛЕНТА ДНЯ</h2>
+  <table id="day"><tr><th>время</th><th>что было</th><th>что дало</th></tr></table>
+  <p class="note">Разговор без разбора подписан честно. Пустая клетка это отсутствие данных, а не ноль.</p>
+</section>
+
+<footer>
+  выдуманный пример ·  · 
+</footer>
+</div>
+
+<script src="aim-voxel.js"></script>
+<script src="voxel-krest.js"></script>
+<script src="крест.js"></script>
+<script>
+AIMVoxel.render(document.getElementById('mark'), window.KREST_VOXEL, {unit:4, interactive:true, label:'крест'});
+fetch(new URLSearchParams(location.search).get('файл') || '../день.json').then(function(r){return r.json();}).then(function(d){
+  KREST.mount(document.getElementById('k'), d, {});
+  var t = document.getElementById('day');
+  d.факты.forEach(function(f){
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + f.t + ' · ' + f.мин + ' мин</td><td>' + f.что + '</td><td>' + (f.дало || '<span style="color:#c9cbd1">разбора нет</span>') + '</td>';
+    t.appendChild(tr);
+  });
+}).catch(function(e){
+  document.getElementById('k').innerHTML = '<div class="card">пример не загрузился: страница открыта как файл. Подними локальный сервер и открой по http.</div>';
+});
+</script>
+</body></html>
