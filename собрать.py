@@ -11,7 +11,11 @@ ap = argparse.ArgumentParser(); ap.add_argument('--без', default=''); ap.add_
 a = ap.parse_args()
 сейчас = dt.datetime.now(TZ) if not a.дата else dt.datetime.fromisoformat(a.дата).replace(tzinfo=TZ, hour=23, minute=0)
 правила = json.load(open(H / 'правила.json', encoding='utf-8'))
-ручное = json.load(open(H / 'источники/ручное.json', encoding='utf-8'))
+# Свой ручной слой кладётся рядом с образцом под именем *.local.json: он уже в .gitignore.
+_ручное = H / 'источники/ручное.local.json'
+if not _ручное.exists():
+    _ручное = H / 'источники/ручное.json'
+ручное = json.load(open(_ручное, encoding='utf-8'))
 выкл = set(x for x in a.без.split(',') if x)
 АДАПТЕРЫ = ['календарь_ics', 'задачи_json', 'отклики']
 статусы = {}; авто = []; события_авто = []; факты = []; наложения = {}

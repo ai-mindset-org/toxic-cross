@@ -16,8 +16,17 @@
 """
 import os, json, pathlib, datetime as dt
 
-ФАЙЛ = pathlib.Path(os.environ.get("KREST_ЗАДАЧИ", "")).expanduser() if os.environ.get("KREST_ЗАДАЧИ") \
-    else pathlib.Path(__file__).parent.parent / "источники" / "задачи.json"
+def _файл():
+    """Своя выгрузка ищется раньше образца: задачи.local.json уже в .gitignore."""
+    если_задан = os.environ.get("KREST_ЗАДАЧИ")
+    if если_задан:
+        return pathlib.Path(если_задан).expanduser()
+    папка = pathlib.Path(__file__).parent.parent / "источники"
+    свой = папка / "задачи.local.json"
+    return свой if свой.exists() else папка / "задачи.json"
+
+
+ФАЙЛ = _файл()
 
 
 def _часы(строка, сейчас):
