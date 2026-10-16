@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "build": 10,
+  "date": "2026-10-16",
+  "download": "Krest-2.0.0-arm64.zip",
+  "sha256": "e5c7001411a3ab46ca5bd6b865c41e5e9dd687c3f47b9c1aed2c0993b302209f",
+  "architecture": "arm64",
+  "minimumMacOS": "13.0",
+  "signature": "ad-hoc",
+  "notarized": false,
+  "channel": "experimental developer preview",
+  "source": "https://github.com/ai-mindset-org/toxic-cross",
+  "release": "https://github.com/ai-mindset-org/toxic-cross/releases/tag/v2.0.0"
+}

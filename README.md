@@ -1,103 +1,56 @@
-# крест
+# Krest
 
-Инструмент показывает, куда тебя тянет прямо сейчас. Четыре луча из одной точки: сверху то, что ты должен, слева то, что было, снизу то, на что опираешься, справа то, что будет. Данные приходят из твоего календаря, трекера и ручного слоя. На выходе одна картинка и одно число – перекос.
+**See your day. Name its impact.** A local-first Mac menu-bar app and self-hostable workspace for calendar context, personal check-ins and a transparent four-direction model.
 
-Собран на выдуманном дне. Свой день остаётся на своей машине.
+[Try the fictional day](https://apps.aimindset.org/krest/demo.html) · [Product and download](https://apps.aimindset.org/krest/) · [Releases](https://github.com/ai-mindset-org/toxic-cross/releases) · [Method](docs/METHOD.md)
 
-[живое демо](https://apps.aimindset.org/krest/)
+Version 2.0 is an **experimental developer preview**. The weights and four-arm construct are inspectable product choices. No health score or psychological diagnosis is inferred. Source calendar events remain read-only.
 
-## Зачем
+## Choose your start
 
-Груз обычно не собран в одном месте. Встречи в календаре, задачи в трекере, обещания в переписке, тревога про деньги в голове. По отдельности каждое терпимо, вместе даёт состояние, у которого нет названия и нет размера.
+| Path | What you get |
+| --- | --- |
+| Browser demo | A fully fictional day. Try ratings without connecting a source. Entries stay in that browser. |
+| Mac app | Native AppKit panel, calendar context, optional feeling/energy ratings, private notes, source freshness and aggregate history. Apple silicon, macOS 13+. |
+| Source kit | Native Swift source, web workspace, rule engine, adapters and a loopback API you can run yourself. |
 
-Крест даёт размер. Блок стоит на луче по времени, его величина это вес, толщина это охват. Видно раскладку: двадцать два на обязательствах против семи на ресурсах это перекос ноль шестьдесят вниз, и с этим числом уже можно работать.
+## Build the Mac app
 
-Второе свойство важнее первого. Лучи питают друг друга, и починка одного не помогает: снял обязательство, поднялось прошлое, нашёл ресурс, будущее объяснило, что его не хватит. Инструмент воспроизводит это честно. Перевернёшь один луч, соседние за полминуты отыграют три четверти веса обратно. Это правило весов, и оно в [переворот.md](docs/переворот.md).
+Requires Apple's Xcode Command Line Tools.
 
-## Быстрый старт
+    git clone https://github.com/ai-mindset-org/toxic-cross.git
+    cd toxic-cross/native
+    make test
+    make install
 
-```bash
-git clone https://github.com/ai-mindset-org/toxic-cross.git krest && cd krest
-python3 собрать.py     # адаптеры → правила → день.json
-./запустить.sh         # поле на 127.0.0.1:8777
-```
+See [native/README.md](native/README.md) for controls, permissions, update/rollback and uninstall. The development build is ad-hoc signed and not notarized; Gatekeeper may block a downloaded copy. The exact release includes SHA-256. There is no automatic updater and no security-bypass installer.
 
-Поле откроется на выдуманном дне: девятнадцать блоков, все четыре луча, точка баланса. Сервер слушает только `127.0.0.1`, наружу не выходит ничего.
+## Run a local workspace
 
-Из коробки работают три адаптера: календарь по файлу `.ics`, задачи по json и отклики. Календарь без настройки берёт `источники/образец.ics` и переносит события на сегодня, поэтому поле полное сразу. Свой календарь подключается одной переменной:
+    cd toxic-cross
+    python3 собрать.py
+    KREST_PORT=8777 python3 server.py
 
-```bash
-KREST_ICS=~/Downloads/мой.ics KREST_MAIL=я@почта python3 собрать.py
-```
+Open http://127.0.0.1:8777/. Default records are fictional. server.py stays on loopback. See [SECURITY.md](SECURITY.md) before any remote deployment. Remote access needs your own authenticated private network and TLS; this experimental API has no independent accounts.
 
-## Как устроено
+The workspace shows Today, Balance, Sources and Method. Each event can receive your feeling and energy rating and an optional sentence. Upcoming/current/earlier phases follow the clock; an ended event does not establish completion. Browser-board and native check-in stores are separate in v2.
 
-Граница проходит по файлу. Адаптеры знают про источники и ничего не знают про рисование. Поле читает собранный день и не знает адресов источников. Умер один адаптер – поле рисует остальные лучи и красит этот источник красным.
+## Make it yours
 
-| что | где |
-|---|---|
-| веса, время, охваты, флипы | `правила.json` |
-| сборка дня | `собрать.py` |
-| адаптеры источников | `адаптеры/` |
-| поле плюс приём отклика | `поле.py` |
-| разметка и рисование | `движок/` |
-| выдуманный день для показа | `пример/example.json` |
-| образцы данных источников | `источники/` |
+- **Manual context:** copy источники/ручное.json to источники/ручное.local.json and edit the ignored copy.
+- **Tasks:** copy источники/задачи.json to источники/задачи.local.json. Keep local records out of Git.
+- **ICS:** set KREST_ICS to a file or subscription URL, KREST_MAIL to your own address and optionally KREST_TZ to an IANA time zone. The lightweight legacy ICS adapter has limited recurrence/time-zone handling; native EventKit or Calendar Control is preferred for complex calendars.
+- **Calendar Control bridge:** enter your own board URL in native Settings and explicitly enable calendar sharing. It sends selected titles/times, excluding attendees, notes and meeting links. A fresh complete snapshot updates only the calendar lane. No model call or new scheduler is created.
+- **Rules:** edit правила.json. Source scales and interpretation are yours to inspect. More adapter detail is in docs/свой-источник.md and адаптеры/ОБРАЗЕЦ.py. New modules require deliberate source changes; imported data never executes code.
 
-Ни один вес не зашит в код. `правила.json` это единственное место, где живут числа: базовый вес источника, его масштаб, полураспад охвата, формулировка переворота. Поменял файл – поменялась картинка, трогать код не нужно.
+Re-run python3 собрать.py after manual source/rule changes. The core is deterministic. An optional existing scheduler can run it in your own deployment; none is installed by the quickstart.
 
-Механика целиком: [механика.md](docs/механика.md).
+## Mechanism
 
-## Ритуал и отклик
+Obligations, Resources, Past and Future are four views of context. The dot follows declared source weights. Feeling/energy are separate self-reports. A deliberate reframe preview illustrates a different perspective with a visible arbitrary multiplier and leaves original observations intact. Read [the method and evidence limits](docs/METHOD.md).
 
-Поле поднимает `поле.py`: статика плюс один маршрут `/отклик`. По нему записывается ответ на вопрос «как это на тебя повлияло», а адаптер `отклики` кладёт ответ обратно на крест. Сказанное рукой весит больше счётчика.
+## Data and trust
 
-```bash
-curl -G http://127.0.0.1:8777/отклик \
-  --data-urlencode "событие=звонок в 14:00" \
-  --data-urlencode "луч=ресурсы"
-```
+Actual day/context files contain titles and may be sensitive. They are private even when message bodies and tokens are excluded. Generated day files, calendars, notes and histories are ignored by Git. Review every public screenshot and use fictional fixtures only. The public website makes no request to a personal board.
 
-Кнопки в телеграм-боте делаются **ссылками** на этот маршрут, а не `callback_data`. Причина механическая: читатель обновлений у токена ровно один, второй процесс начинает растаскивать поток, а вебхук на том же токене отвечает на опрос ошибкой 409. Ссылка не требует читателя вовсе: бот только отправляет, клик открывает страницу, страница записывает.
-
-Маршрут принимает только `GET`: кнопка в боте это ссылка, и ничего кроме перехода по ней не нужно. Неизвестный луч отбивается кодом 400 с объяснением в теле.
-
-Свои отклики лежат в `источники/отклики.json` и в репозиторий не уходят.
-
-Проверить петлю целиком: `./проверка.sh` — сборка, поле, приём отклика, отказ по мусорному лучу, отсутствие трейсбеков.
-
-## Свой источник
-
-Адаптер это один файл в `адаптеры/`, который возвращает список элементов. Ему нужно отдать заголовок, вес, часы до события и природу блока: тянет он или держит. Всё остальное сделают правила.
-
-Права на запись не нужны ни к одному источнику. Инструмент только читает и считает.
-
-Каркас с пояснениями: `адаптеры/ОБРАЗЕЦ.py`, разбор: [свой-источник.md](docs/свой-источник.md).
-
-## Что он не делает
-
-Не хранит содержимое. От встречи остаются время, длительность и число участников, повестка не читается. От задачи остаются приоритет, срок и короткое название. Токены живут в окружении машины и в собранный файл не попадают.
-
-Это же правило распространяется на адаптеры, которые ты допишешь сам. Если источник это переписка, в крест идёт число диалогов без ответа, а не текст сообщений: вес считается по количеству и срокам, и содержимое в формулу не входит ни на одном шаге. Значит право читать историю сообщений инструменту не нужно, и просить его не за что.
-
-Следствие: файл дня можно показать и обсудить, в нём нет ничего, что нельзя показать. Список проверок перед выкладкой своей сборки: [безопасность.md](docs/безопасность.md).
-
-## Данные в этом репозитории
-
-Выдуманы целиком. `пример/example.json` это день несуществующего человека, `источники/` это образцы того же дня, `правила.json` содержит веса и формулировки без привязки к кому-либо. Ни один файл здесь не снят с живой сборки.
-
-`день.json`, `история/` и `источники/отклики.json` лежат в `.gitignore`: они появляются у тебя локально после `собрать.py` и остаются на твоей машине.
-
-Образцы `источники/ручное.json` и `источники/задачи.json` **отслеживаются**, они должны приезжать вместе с клоном. Своё клади рядом под именем `*.local.json`: сборка предпочтёт его образцу, а git его не возьмёт.
-
-```bash
-cp источники/ручное.json источники/ручное.local.json   # дальше правь копию
-```
-
-## Откуда взялось
-
-Термин и рисунок пришли из частного разговора в сентябре 2026 года. По частям конструкция собрана из описанного раньше: когнитивная триада Бека, оценка требований против ресурсов у Лазаруса и Фолкман, спираль потерь Хобфолла, прокрастинация как дешёвая починка настроения у Сируа. Ценность в склейке: четыре механизма сходятся в картинку, которую рисуешь за минуту на салфетке.
-
-## Лицензия
-
-MIT, см. [LICENSE](LICENSE).
+Code: [MIT](LICENSE). Bundled fonts: [SIL OFL](ASSET-LICENSES.md). Privacy, storage and network inventory: [SECURITY.md](SECURITY.md). Changes and known limits: [CHANGELOG.md](CHANGELOG.md).

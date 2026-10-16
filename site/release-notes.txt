@@ -1,0 +1,10 @@
+Krest 2.0.0 (build 10) – 2026-10-16 · experimental developer preview
+
+English day workspace; feeling and energy check-ins; explicit source freshness; deliberate reframe preview; native source and deployment kit.
+Optional private calendar sharing uses selected Calendar Control sources, with no attendees, descriptions or meeting links.
+Quiet check-in reminders are off by default, at most once per day, and never replay a backlog after wake.
+Apple silicon, macOS 13+ declared and compiled target. Ad-hoc signed; not notarized. Clean-machine minimum-OS testing remains outstanding.
+Native and browser-board check-ins are separate stores in this release. Updates are manual. No executable plugin installer.
+
+Krest 1.2.1 (build 6) – 2026-10-02
+Earlier public release: pin persistence, global hotkey, theme and shared shell.

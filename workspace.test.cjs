@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {normalize,phase,esc}=require('./движок/workspace-v2.js');
+const now=new Date('2026-10-16T12:00:00Z');
+assert.equal(phase({start:'2026-10-16T11:00Z',end:'2026-10-16T12:00Z'},now),'earlier');
+assert.equal(phase({start:'2026-10-16T12:00Z',end:'2026-10-16T13:00Z'},now),'now');
+assert.equal(phase({start:'2026-10-16T13:00Z',end:'2026-10-16T14:00Z'},now),'upcoming');
+assert.equal(phase({allDay:true},now),'all day');
+assert.equal(phase({declined:true},now),'declined');
+const data=normalize({'дата':'2026-10-16','день':[{reviewID:'stable',id:'changed',title:'<script>private</script>',start:'2026-10-16T12:00Z',end:'2026-10-16T13:00Z'},{title:'bad',start:'bad',end:'bad'}]},now);
+assert.equal(data.events.length,1);assert.equal(data.events[0].id,'stable');
+assert.equal(esc('<img src=x onerror="alert(1)">'),'&lt;img src=x onerror=&quot;alert(1)&quot;&gt;');
+const demo=normalize({fictional:true,'день':[{id:'fictional',title:'Example',offsetMinutes:-10,durationMinutes:30}]},now);
+assert.equal(phase(demo.events[0],now),'now');
+console.log('PASS: phases, ended boundary, stable review identity, invalid dates, HTML escaping, fictional relative clock');

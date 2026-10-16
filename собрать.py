@@ -17,7 +17,7 @@ if not _ручное.exists():
     _ручное = H / 'источники/ручное.json'
 ручное = json.load(open(_ручное, encoding='utf-8'))
 выкл = set(x for x in a.без.split(',') if x)
-АДАПТЕРЫ = ['календарь_ics', 'задачи_json', 'отклики']
+АДАПТЕРЫ = ['calendar_bridge' if (H/'источники/calendar-control.json').exists() else 'календарь_ics', 'задачи_json', 'отклики']
 статусы = {}; авто = []; события_авто = []; факты = []; наложения = {}
 for имя in АДАПТЕРЫ:
     t0 = dt.datetime.now()
@@ -118,13 +118,14 @@ for л in лучи:
 день = sorted(события_авто + [s for s in ручное.get('день', []) if a.дата], key=lambda s: s['t'])
 факты = sorted(факты, key=lambda f: f.get('t') or '')
 сигнал = лучи['обязательства']['сумма'] > 3 * max(1, лучи['ресурсы']['сумма'])
-всего = max(1, sum(v['сумма'] for v in лучи.values()) / 2)
+всего = max(1, sum(abs(v['сумма']) for v in лучи.values()) / 2)
 out = {"дата": сейчас.strftime('%Y-%m-%d'), "собрано": сейчас.isoformat(timespec='minutes'),
+       "fictional": _ручное.name == 'ручное.json' and not os.environ.get('KREST_ICS') and not (H/'источники/calendar-control.json').exists() and not (H/'источники/задачи.local.json').exists(),
        "человек": ручное.get('человек', 'образец'), "лучи": лучи, "день": день, "факты": факты,
        "источники": статусы, "правила_версия": правила.get("версия", "открытая v1"), "сигнал": сигнал,
        "переворот": правила['переворот'], "охваты": правила['охваты'],
-       "баланс": {"x": round((лучи['будущее']['сумма'] - лучи['прошлое']['сумма']) / всего, 2),
-                  "y": round(-(лучи['обязательства']['сумма'] - лучи['ресурсы']['сумма']) / всего, 2)}}
+       "баланс": {"x": max(-1,min(1,round((лучи['будущее']['сумма'] - лучи['прошлое']['сумма']) / всего, 2))),
+                  "y": max(-1,min(1,round(-(лучи['обязательства']['сумма'] - лучи['ресурсы']['сумма']) / всего, 2)))}}
 json.dump(out, open(H / 'день.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 open(H / 'день.js', 'w', encoding='utf-8').write('window.КОНТЕКСТ=' + json.dumps(out, ensure_ascii=False) + ';')
 (H / 'история').mkdir(exist_ok=True)

@@ -1,0 +1,12 @@
+{
+  "source": "lab-sites/sites/apps/assets",
+  "profile": "n1",
+  "files": {
+    "AIMMiniAppTokens.swift": "c1ba9ba72b0ff48fd2da8a3b304e64260e636740323d4d27aea975ff68310805",
+    "AIMAppMarks.swift": "9340d10bf906a13c83aa844906fcdd69007d41a10bbf39c83d6f7fae485e9862",
+    "AIMAppMarkView.swift": "2f659ddff3fb05dad645ef3e689d7b85b2ea3148ccfdafa0a2f237a71e7e25ab",
+    "AIMAppShell.swift": "8c7ee9095ed4956a0e601724ce86f5674c556c984ce2674cae4718a59a40f584",
+    "AIMVoxelModels.swift": "a83241827ef272763e16a5ea400e117c4358f4fe40ab1429172d98b840797bb9",
+    "AIMVoxelView.swift": "9d301d847ec040797a71a7163419b75b553ee825d6f98387affb94e66e87e41c"
+  }
+}

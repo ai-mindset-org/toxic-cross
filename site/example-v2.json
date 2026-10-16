@@ -1,0 +1,176 @@
+{
+  "fictional": true,
+  "дата": "2026-10-16",
+  "собрано": "2026-10-16T10:00:00Z",
+  "правила_версия": "fictional-v2",
+  "баланс": {
+    "x": 0.12,
+    "y": -0.28
+  },
+  "день": [
+    {
+      "id": "fictional-reading",
+      "title": "Quiet reading hour",
+      "offsetMinutes": -240,
+      "durationMinutes": 50
+    },
+    {
+      "id": "fictional-review",
+      "title": "Fictional design review",
+      "offsetMinutes": -15,
+      "durationMinutes": 45
+    },
+    {
+      "id": "fictional-walk",
+      "title": "Walk and a little space",
+      "offsetMinutes": 75,
+      "durationMinutes": 30
+    },
+    {
+      "id": "fictional-project",
+      "title": "Fictional project check-in",
+      "offsetMinutes": 160,
+      "durationMinutes": 45
+    }
+  ],
+  "источники": {
+    "календарь": {
+      "статус": "live",
+      "заметка": "Fictional calendar · four invented events"
+    },
+    "задачи": {
+      "статус": "live",
+      "заметка": "Fictional tasks · example records only"
+    },
+    "отклики": {
+      "статус": "off",
+      "заметка": "Your demo entries stay in this browser"
+    }
+  },
+  "лучи": {
+    "обязательства": {
+      "сумма": 8.5,
+      "штук": 3,
+      "элементы": [
+        {
+          "id": "fictional-обязательства0",
+          "т": "Share the first draft",
+          "вес": 3,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        },
+        {
+          "id": "fictional-обязательства1",
+          "т": "A design review",
+          "вес": 2.5,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        },
+        {
+          "id": "fictional-обязательства2",
+          "т": "Leave time for an open task",
+          "вес": 3,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        }
+      ]
+    },
+    "ресурсы": {
+      "сумма": 5.5,
+      "штук": 3,
+      "элементы": [
+        {
+          "id": "fictional-ресурсы0",
+          "т": "An uninterrupted hour",
+          "вес": 2,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        },
+        {
+          "id": "fictional-ресурсы1",
+          "т": "A teammate's practical help",
+          "вес": 2,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        },
+        {
+          "id": "fictional-ресурсы2",
+          "т": "A walk between meetings",
+          "вес": 1.5,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        }
+      ]
+    },
+    "прошлое": {
+      "сумма": 3,
+      "штук": 2,
+      "элементы": [
+        {
+          "id": "fictional-прошлое0",
+          "т": "A useful project lesson",
+          "вес": 2,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        },
+        {
+          "id": "fictional-прошлое1",
+          "т": "A promise I renegotiated",
+          "вес": 1,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        }
+      ]
+    },
+    "будущее": {
+      "сумма": 4.5,
+      "штук": 2,
+      "элементы": [
+        {
+          "id": "fictional-будущее0",
+          "т": "One plausible good outcome",
+          "вес": 2,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        },
+        {
+          "id": "fictional-будущее1",
+          "т": "A plan with room to change",
+          "вес": 2.5,
+          "источник": "manual",
+          "факт": "Fictional record with an explicitly chosen planning weight.",
+          "флип": "What is one kind, practical next step?",
+          "охват": "ситуативное",
+          "т_ч": 12
+        }
+      ]
+    }
+  }
+}
