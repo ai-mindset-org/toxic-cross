@@ -23,9 +23,9 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Krest reads calendar events to show upcoming commitments and remaining time. It does not edit events or upload calendar data.</string>
+	<string>Krest reads events to show your day. Events stay on this Mac unless you explicitly enable sharing with your private board. Krest never edits calendar events.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>Krest reads calendar events to show upcoming commitments and remaining time. It does not edit events or upload calendar data.</string>
+	<string>Krest reads events to show your day. Events stay on this Mac unless you explicitly enable sharing with your private board. Krest never edits calendar events.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>

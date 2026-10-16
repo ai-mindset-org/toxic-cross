@@ -19,6 +19,7 @@ bundle:
 	  -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist -Xlinker Info.plist
 	@cp Info.plist $(APP_DIR)/Contents/Info.plist
 	@cp assets/демо.json assets/*.ttf assets/*LICENSE.txt assets/design-receipt.json $(APP_DIR)/Contents/Resources/
+	@cp LICENSE $(APP_DIR)/Contents/Resources/Krest-LICENSE.txt
 	@[ -f assets/Krest.icns ] && cp assets/Krest.icns $(APP_DIR)/Contents/Resources/ || true
 	@codesign --force --deep --sign - $(APP_DIR)
 	@codesign --verify --deep --strict $(APP_DIR)
