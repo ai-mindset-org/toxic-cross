@@ -12,7 +12,7 @@ The installation is scoped to ~/Applications/krest.app and one org.aimindset.kre
 
 Click the menu-bar mark or press Option-Command-X. Tabs: Balance, Day, History, Settings. Command-K opens actions; Command-comma opens Settings; Escape returns from a check-in/Settings and then closes the panel. The header's circle pins the panel open. The balance dot is a separate source indicator.
 
-In Day, choose an event and Check in. Feeling and energy are optional −2…+2 personal reports, with an optional private sentence. Check-ins stay in a separate local file. Calendar, private-board balance and personal ratings remain separately labelled.
+In Day, choose an event and Check in. The check-in is voluntary. Saving records both feeling and energy on the −2…+2 scale, initially 0 for each, plus an optional private sentence. Review both values before saving; close or skip to leave the event unrecorded. Check-ins stay in a separate local file. Calendar, private-board balance and personal ratings remain separately labelled. See [the data-flow ledger](../docs/DATA-FLOW.md) for what each action changes and how events match.
 
 An existing private-board connection enables **ratings sync** by default. Settings can turn it off; with no board it stays off. Save writes locally first, then exchanges check-ins with that board. Opening the panel and the minute source check also exchange records. Day and History show the source, last successful check and pending count. An unavailable board leaves local entries intact, ready for the next exchange. Replies merge by occurrence, with the newest recorded time winning; a reply in flight cannot overwrite a newer edit. Browser check-ins become visible in History and on matching calendar events in Day.
 

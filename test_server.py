@@ -5,6 +5,7 @@ from pathlib import Path
 import tempfile
 import threading
 import unittest
+import urllib.parse
 import shutil
 import subprocess
 import sys
@@ -17,7 +18,8 @@ class PrivateAPITest(unittest.TestCase):
         self.original=server.ИСТОЧНИКИ;server.ИСТОЧНИКИ=self.folder
         self.original_root=server.КОРЕНЬ;server.КОРЕНЬ=self.folder
         (self.folder/'workspace.html').write_text('<html><head></head><body>CURRENT WORKSPACE</body></html>')
-        (self.folder/'index.html').write_text('<html><head><meta http-equiv="refresh" content="0; url=workspace.html"></head><body>CLASSIC CROSS</body></html>')
+        (self.folder/'index.html').write_text('<html><head></head><body>CURRENT WORKSPACE</body></html>')
+        (self.folder/'classic.html').write_text('<html><head></head><body>CLASSIC CROSS</body></html>')
         self.http=server.Сервер(('127.0.0.1',0),server.Рук)
         self.thread=threading.Thread(target=self.http.serve_forever,daemon=True);self.thread.start()
     def tearDown(self):
@@ -68,11 +70,26 @@ class PrivateAPITest(unittest.TestCase):
         self.assertEqual(path.read_text(),'{broken')
 
     def test_workspace_has_no_redirect_flash_and_classic_is_reachable(self):
-        for path,marker in [('/',b'CURRENT WORKSPACE'),('/index.html',b'CURRENT WORKSPACE'),('/classic-frame',b'CLASSIC CROSS')]:
+        paths=['/','/index.html','/workspace.html','/движок/','/движок/index.html','/движок/workspace.html']
+        for path in paths+['/classic-frame']:
+            marker=b'CLASSIC CROSS' if path=='/classic-frame' else b'CURRENT WORKSPACE'
+            for method in ['GET','HEAD']:
+                with self.subTest(path=path,method=method):
+                    conn=http.client.HTTPConnection('127.0.0.1',self.http.server_address[1]);conn.request(method,urllib.parse.quote(path)+'?from=menu')
+                    r=conn.getresponse();text=r.read();self.assertEqual(r.status,200);self.assertIsNone(r.getheader('Location'))
+                    if method=='GET': self.assertIn(marker,text)
+                    self.assertNotIn(b'http-equiv="refresh"',text)
+                    self.assertIn('no-store',r.getheader('Cache-Control'));conn.close()
+
+    def test_source_kit_aliases_resolve_the_current_engine_and_explicit_archive(self):
+        (self.folder/'workspace.html').unlink();(self.folder/'classic.html').unlink()
+        engine=self.folder/'движок';engine.mkdir()
+        (engine/'workspace.html').write_text('<html><head></head><body>SOURCE KIT WORKSPACE</body></html>')
+        (engine/'index.html').write_text('<html><head></head><body>SOURCE KIT CLASSIC</body></html>')
+        for path,marker in [('/index.html',b'SOURCE KIT WORKSPACE'),('/classic-frame',b'SOURCE KIT CLASSIC')]:
             conn=http.client.HTTPConnection('127.0.0.1',self.http.server_address[1]);conn.request('GET',path)
-            r=conn.getresponse();text=r.read();self.assertEqual(r.status,200);self.assertIsNone(r.getheader('Location'))
-            self.assertIn(marker,text);self.assertNotIn(b'http-equiv="refresh"',text)
-            self.assertIn('no-store',r.getheader('Cache-Control'));conn.close()
+            r=conn.getresponse();text=r.read();self.assertEqual(r.status,200);self.assertIn(marker,text)
+            self.assertIn(b'<base href="/%D0%B4%D0%B2%D0%B8%D0%B6%D0%BE%D0%BA/">',text);conn.close()
 
     def test_private_subdirectory_entrypoint_resolves_project_module(self):
         private=self.folder/'private';scripts=private/'сервер';scripts.mkdir(parents=True)
@@ -89,6 +106,15 @@ class PrivateAPITest(unittest.TestCase):
         self.assertEqual(self.post('/check-in',{**body,'feeling':3}),400)
         self.assertEqual(self.post('/check-in',body,'https://untrusted.example'),403)
         self.assertEqual((self.folder/'check-ins.local.json').stat().st_mode&0o777,0o600)
+    def test_checkins_change_the_journal_without_recollecting_or_reweighting_context(self):
+        context=self.folder/'контекст.json';original=b'{"balance":"SOURCE WEIGHTS RETAINED"}\n';context.write_bytes(original)
+        with patch.object(server.Рук,'refresh_calendar') as collect:
+            self.assertEqual(self.request_json('/check-in',self.entry())[0],200)
+            self.assertEqual(self.request_json('/check-ins/sync',{'entries':[self.entry(occurrence='c'*64)]})[0],200)
+            collect.assert_not_called()
+        self.assertEqual(context.read_bytes(),original)
+        self.assertEqual(len(self.request_json('/check-ins')[1]),2)
+
     def test_calendar_allowlist_and_freshness(self):
         now=dt.datetime.now(dt.timezone.utc)
         body={'schemaVersion':1,'source':'krest-calendar-bridge','fetchedAt':now.isoformat(),'rangeStart':(now-dt.timedelta(days=1)).isoformat(),'rangeEnd':(now+dt.timedelta(days=1)).isoformat(),'events':[{'id':'b'*64,'title':'Fictional calendar','start':now.isoformat(),'end':(now+dt.timedelta(hours=1)).isoformat(),'allDay':False,'owner_response':'accepted','notes':'MUST NOT BE STORED'}]}

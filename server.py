@@ -99,7 +99,9 @@ class Рук(http.server.SimpleHTTPRequestHandler):
         if self.command != 'HEAD': self.wfile.write(data)
 
     def workspace_route(self, path):
-        if path in ('/', '/index.html'):
+        # Every historical entry URL serves the same document. A redirect leaves
+        # the old instrument paintable while the next page is being fetched.
+        if path in ('/', '/index.html', '/workspace.html', '/движок/', '/движок/index.html', '/движок/workspace.html'):
             workspace = КОРЕНЬ / 'workspace.html'
             base = '/'
             if not workspace.exists():
@@ -109,7 +111,7 @@ class Рук(http.server.SimpleHTTPRequestHandler):
         if path in ('/classic', '/classic/'):
             self.html('''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Krest · classic instrument</title><style>html,body{margin:0;height:100%;background:#fff;color:#202124;font:13px/1.5 ui-monospace,monospace}header{height:48px;box-sizing:border-box;padding:12px 18px;display:flex;gap:20px;border-bottom:1px solid #e8e9ed}a{color:inherit}span{color:#6b6e75}iframe{border:0;width:100%;height:calc(100% - 48px)}</style></head><body><header><a href="/#research">← current research board</a><span>Classic instrument · historical model and controls · same private sources</span></header><iframe title="Classic Krest research instrument" src="/classic-frame"></iframe></body></html>'''); return True
         if path == '/classic-frame':
-            legacy = КОРЕНЬ / 'index.html'
+            legacy = КОРЕНЬ / 'classic.html'
             base = '/'
             if not legacy.exists(): legacy = КОРЕНЬ / 'движок/index.html'; base = urllib.parse.quote('/движок/')
             if legacy.exists(): self.html(legacy.read_text(), base); return True

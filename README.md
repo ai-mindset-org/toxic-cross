@@ -4,7 +4,7 @@
 
 [Try the fictional day](https://apps.aimindset.org/krest/demo.html) · [Product and download](https://apps.aimindset.org/krest/) · [Releases](https://github.com/ai-mindset-org/toxic-cross/releases) · [Method](docs/METHOD.md)
 
-Version 2.1 is an **experimental developer preview**. The weights and four-arm construct are inspectable product choices. No health score or psychological diagnosis is inferred. Source calendar events remain read-only.
+Mac 2.1 and workspace 2.2 are an **experimental developer preview**. The weights and four-arm construct are inspectable product choices. No health score or psychological diagnosis is inferred. Source calendar events remain read-only.
 
 ## Choose your start
 
@@ -33,9 +33,9 @@ See [native/README.md](native/README.md) for controls, permissions, update/rollb
 
 Open http://127.0.0.1:8777/. Default records are fictional. server.py stays on loopback. See [SECURITY.md](SECURITY.md) before any remote deployment. Remote access needs your own authenticated private network and TLS; this experimental API has no independent accounts.
 
-The workspace opens in Research: a wide cross, Time and Process views, searchable records, source/scope filters, original weights and evidence receipts. Day, Sources and Method remain available. Each event can receive your feeling and energy rating and an optional sentence. Upcoming/current/earlier phases follow the clock; an ended event does not establish completion. The private server retains the historical instrument at `/classic`, with a link back to the current workspace. The root serves the current workspace directly, without a redirect flash.
+The workspace opens in Research: a responsive cross, Time and Process views, searchable records, optional source/scope filters, original weights and evidence receipts. Select a direction to inspect its full record list and time horizons. Select a block to open a detail drawer; Escape returns to the field. Day, Sources and Method remain available. Each event can receive your feeling and energy rating and an optional sentence. Upcoming/current/earlier phases follow the clock; an ended event does not establish completion. The private server retains the historical instrument at `/classic`, with a link back to the current workspace. Root, index and workspace entry URLs serve the current document directly. The private static index also contains the current workspace; the old instrument lives only in its explicit archive.
 
-Connecting a private board enables ratings sync as a separate setting. The Mac app exchanges the same occurrence fingerprints, times, ratings and optional notes with that board. Newer edits win, offline records stay local until acknowledged, and Day/History show a sync receipt. Disable ratings sync in Settings for local-only use. The public demo always uses fictional records and browser-local storage; it cannot connect to a personal board.
+See [the data-flow ledger](docs/DATA-FLOW.md) for the separate calendar and ratings paths. Connecting a private board enables ratings sync as a separate setting. The Mac app exchanges the same occurrence fingerprints, times, ratings and optional notes with that board. Newer edits win, offline records stay local until acknowledged, and Day/History show a sync receipt. Disable ratings sync in Settings for local-only use. The public demo always uses fictional records and browser-local storage; it cannot connect to a personal board.
 
 ## Make it yours
 

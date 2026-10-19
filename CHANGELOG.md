@@ -1,5 +1,13 @@
 # Changelog
 
+## Workspace 2.2.0 – 2026-10-19
+
+- Research fits smaller screens without a permanent detail column. A block opens in a side drawer; Escape restores focus to its control.
+- Click a direction to inspect its records, relative weights and time horizons. Optional filters stay collapsed until needed.
+- The private static index and all server entry aliases open the current workspace directly. The historical instrument remains an explicit archive.
+- Check-in effects and the separate calendar/source-weight flow are explained in the interface and data-flow documentation.
+- Mac download remains 2.1.0 build 11; this update changes the web workspace and source kit.
+
 ## 2.1.0 – 2026-10-19 · experimental developer preview
 
 - Restored a wide research instrument: Cross, Time and Process views, complete four-direction records, search, filters and source details.

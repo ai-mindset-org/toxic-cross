@@ -1,3 +1,7 @@
+Krest workspace 2.2.0 – 2026-10-19
+
+Responsive research field, focused directions with record/time views, on-demand block detail drawer and compact optional filters. Private index and server entry aliases open the current workspace directly. Check-ins update the shared ratings journal; source weights follow their separate collection flow. The Mac download remains 2.1.0 (build 11).
+
 Krest 2.1.0 (build 11) – 2026-10-19 · experimental developer preview
 
 Wide research workspace: Cross, Time and Process, full source records, filters and weight/evidence details. Day and check-ins remain available. Private classic instrument retained; root redirect flash removed.

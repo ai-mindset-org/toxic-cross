@@ -1,5 +1,6 @@
 {
   "version": "2.1.0",
+  "workspaceVersion": "2.2.0",
   "build": 11,
   "date": "2026-10-19",
   "download": "Krest-2.1.0-arm64.zip",

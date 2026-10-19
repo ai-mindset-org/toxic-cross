@@ -1,12 +1,13 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {JSDOM}=require(process.env.KREST_JSDOM||'jsdom');
-const {normalize,statusFor,recordBalance}=require('./site/assets/workspace-v2.js');
+const {normalize,statusFor,recordBalance,reconcileRecordState}=require('./site/assets/workspace-v2.js');
 const fixture=JSON.parse(fs.readFileSync('site/example-v2.json','utf8'));
 const script=fs.readFileSync('site/assets/workspace-v2.js','utf8');
+const stylesheet=fs.readFileSync('site/assets/workspace-v2.css','utf8');
 const tick=()=>new Promise(resolve=>setTimeout(resolve,15));
 async function mount({raw=fixture,demo=true,hash='',reviews=[]}={}){
- const dom=new JSDOM(`<div id="krest-workspace" data-mode="${demo?'demo':'private'}" data-context="fixture.json"></div>`,{url:'http://localhost/'+hash,runScripts:'outside-only'});
+ const dom=new JSDOM(`<style>${stylesheet}</style><div id="krest-workspace" data-mode="${demo?'demo':'private'}" data-context="fixture.json"></div>`,{url:'http://localhost/'+hash,runScripts:'outside-only'});
  const w=dom.window,calls=[];
  w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};
  w.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');};
@@ -31,6 +32,141 @@ async function mount({raw=fixture,demo=true,hash='',reviews=[]}={}){
  assert(Math.abs(lighter.x-observed.x*.25)<1e-10,'preview keeps observed normalization');
  assert(Math.abs(lighter.y-observed.y*.25)<1e-10,'all lighter weights visibly approach the centre');
  assert.equal(JSON.stringify(normalized.records),before,'preview never mutates observations');
+ // A UI index must never become a different source record after a live snapshot refresh.
+ const record=(key,id,source='shared',adapter='calendar',kind='adapter')=>({key,id,source,evidence:{adapter,kind}});
+ const prior=[record('обязательства:0','A'),record('обязательства:1','B')];
+ const state={selectedRecord:prior[0].key,recordTrigger:{key:prior[0].key,row:true},previewTargets:new Set(prior.map(r=>r.key))};
+ let reconciled=reconcileRecordState(prior,[record('обязательства:0','B'),record('обязательства:1','A')],state);
+ assert.equal(reconciled.selectedRecord,'обязательства:1');assert.equal(reconciled.recordTrigger.key,'обязательства:1');
+ assert.deepEqual([...reconciled.previewTargets],['обязательства:1','обязательства:0']);
+ reconciled=reconcileRecordState(prior,[record('ресурсы:0','A'),record('обязательства:0','B')],state);
+ assert.equal(reconciled.selectedRecord,'ресурсы:0','unique identity may move between arms');
+ reconciled=reconcileRecordState(prior,[record('обязательства:0','B')],state);
+ assert.equal(reconciled.selectedRecord,'','removed record closes instead of selecting replacement at same index');
+ assert.equal(reconciled.recordTrigger,null);assert.deepEqual([...reconciled.previewTargets],['обязательства:0'],'remaining preview follows B, while A is dropped');
+ const adapters=[record('обязательства:0','same','shared','calendar'),record('обязательства:1','same','shared','tasks')];
+ reconciled=reconcileRecordState(adapters,[record('обязательства:0','same','shared','tasks'),record('обязательства:1','same','shared','calendar')],{...state,previewTargets:new Set(['обязательства:0'])});
+ assert.equal(reconciled.selectedRecord,'обязательства:1','same ID from different adapters stays distinct');assert.deepEqual([...reconciled.previewTargets],['обязательства:1']);
+ for(const next of [
+  [record('обязательства:0','A'),record('ресурсы:0','A')],
+  [record('обязательства:0','A','different-source')],
+  [record('обязательства:0','A','shared','calendar','manual')],
+  [record('обязательства:0',undefined)]
+ ]){reconciled=reconcileRecordState(prior,next,{...state,previewTargets:new Set(['обязательства:0'])});assert.equal(reconciled.selectedRecord,'','ambiguous, changed or missing source identity is discarded');assert.equal(reconciled.previewTargets.size,0);}
+ reconciled=reconcileRecordState([record('обязательства:0','A'),record('ресурсы:0','A')],[record('обязательства:0','A')],{...state,previewTargets:new Set(['обязательства:0'])});
+ assert.equal(reconciled.selectedRecord,'','collision in the previous snapshot cannot be resolved by guessing');assert.equal(reconciled.previewTargets.size,0);
+ assert.equal(state.selectedRecord,'обязательства:0');assert.deepEqual([...state.previewTargets],prior.map(r=>r.key),'reconciliation leaves previous state unchanged');
+ const liveInitial={...fixture,'лучи':{'обязательства':{элементы:[{id:'live-A',т:'Live original A',вес:8,источник:'shared',evidence:{kind:'adapter',adapter:'calendar'}},{id:'live-B',т:'Live original B',вес:3,источник:'shared',evidence:{kind:'adapter',adapter:'calendar'}}]}}};
+ const live=await mount({raw:liveInitial});
+ {
+  const {w,q,click}=live;
+  const refresh=async raw=>{w.fetch=async()=>({ok:true,json:async()=>raw});Object.defineProperty(w.document,'hidden',{value:false,configurable:true});w.document.dispatchEvent(new w.Event('visibilitychange'));await tick();};
+  const a=liveInitial['лучи']['обязательства'].элементы[0],b=liveInitial['лучи']['обязательства'].элементы[1];
+  click('.record-row[data-record="обязательства:0"]');click('[data-preview-record]');
+  await refresh({...liveInitial,'лучи':{'обязательства':{элементы:[b,{...a,т:'Live A after reorder'}]}}});
+  assert.equal(q('.research-detail h2').textContent,'Live A after reorder','open drawer follows identity through refresh');
+  assert.equal(q('[data-preview-record]').dataset.previewRecord,'обязательства:1');assert.equal(q('[data-preview-record]').getAttribute('aria-pressed'),'true','preview follows same source');
+  q('#detail-preview-multiplier').dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+  assert.equal(w.document.activeElement.dataset.record,'обязательства:1','focus return trigger follows reordered identity');
+  click('.record-row[data-record="обязательства:1"]');
+  await refresh({...liveInitial,'лучи':{'обязательства':{элементы:[b]},'ресурсы':{элементы:[a]}}});
+  assert.equal(q('[data-preview-record]').dataset.previewRecord,'ресурсы:0','live state follows unique source to a new arm');
+  await refresh({...liveInitial,'лучи':{'ресурсы':{элементы:[b]}}});
+  assert(!w.document.querySelector('.research-detail'),'removal closes drawer despite occupied old index');
+  assert(!w.document.querySelector('.preview-dot'),'removed source leaves preview');
+  assert(!q('.app').inert);assert.equal(w.document.activeElement.dataset.layout,'cross','closing stale drawer restores usable focus');
+  click('.record-row');click('[data-preview-record]');
+  await refresh({...liveInitial,'лучи':{'обязательства':{элементы:[b]},'ресурсы':{элементы:[{...b}]}}});
+  assert(!w.document.querySelector('.research-detail'),'canonical collision closes live drawer');assert(!w.document.querySelector('.preview-dot'));
+  w.close();
+ }
+ let compact=await mount();
+ {
+  const {w,q,click,calls}=compact,original=JSON.stringify(fixture);
+  const key=(target,key,shiftKey=false)=>target.dispatchEvent(new w.KeyboardEvent('keydown',{key,shiftKey,bubbles:true,cancelable:true}));
+  assert(!w.document.querySelector('.research-detail'),'initial board has no empty detail sidebar or modal');
+  assert(q('#research-filters').hidden,'optional filters start collapsed');
+  assert.equal(q('[data-action="toggle-filters"]').getAttribute('aria-expanded'),'false');
+  assert(!q('.instrument-guide').open,'long reading guide starts collapsed');
+  assert(!q('.preview-options').open,'preview settings start collapsed');
+  assert(!q('.source-inventory').open,'source inventory starts collapsed but retains receipts');
+  click('[data-action="toggle-filters"]');
+  assert(!q('#research-filters').hidden);
+  q('#research-scope').value='недельное';q('#research-scope').dispatchEvent(new w.Event('change',{bubbles:true}));
+  assert(!q('#research-filters').hidden,'filter panel stays open while editing');
+  click('[data-action="clear-filters"]');click('[data-action="toggle-filters"]');
+  for(const arm of ['обязательства','ресурсы','прошлое','будущее']){
+   const label=q('.cross-direction[data-focus-arm="'+arm+'"]');
+   assert.equal(label.getAttribute('role'),'button');assert.equal(label.getAttribute('tabindex'),'0');
+   assert.match(label.getAttribute('aria-label'),/records; weight/);
+   label.focus();key(label,'Enter');
+   assert(q('.focused-arm'));
+   assert.equal(w.document.activeElement,q('.focused-arm'),'arm activation moves focus to its content');
+   const expected=normalize(fixture).records.filter(r=>r.arm===arm);
+   assert.equal(w.document.querySelectorAll('.record-row').length,expected.length,'focused view shows only its complete arm');
+   for(const record of expected){const row=q('.record-row[data-record="'+record.key+'"]');assert(row.textContent.includes(record.title),'full title remains available');assert.match(row.textContent,/weight/);assert.match(row.textContent,/ago|ahead|now|unknown/);}
+   assert.equal(w.document.querySelectorAll('.timeline-record').length,expected.length);
+   click('[data-action="all-arms"]');
+   assert.equal(w.document.activeElement,q('.arm-heading-link[data-focus-arm="'+arm+'"]'),'back returns focus to direction heading');
+  }
+  assert.equal(w.document.querySelectorAll('.arm-quick-nav button').length,4,'four readable controls accompany the scaled cross');
+  for(const arm of ['обязательства','ресурсы','прошлое','будущее']){
+   const control=q('.arm-quick-nav [data-focus-arm="'+arm+'"]');
+   assert(Number.parseFloat(w.getComputedStyle(control).minHeight)>=44,'direction control keeps a full touch target');
+   assert.match(control.textContent,/records · weight/,'control exposes its record count and observed weight');
+   click('.arm-quick-nav [data-focus-arm="'+arm+'"]');
+   assert(q('.focused-arm'));assert.equal(q('#research-arm').value,arm,'quick control drills into its own arm');
+   click('[data-action="all-arms"]');
+  }
+  click('.arm-heading-link[data-focus-arm="обязательства"]');assert(q('.focused-arm'));
+  const selectedKey=q('.record-row').dataset.record;
+  q('.record-row').focus();click('.record-row');
+  assert.equal(q('.research-detail').getAttribute('aria-modal'),'true');
+  assert.equal(q('.research-detail').getAttribute('aria-labelledby'),q('.research-detail h2').id);
+  assert.equal(q('.app').inert,true,'board becomes inert behind drawer');
+  assert(q('html').classList.contains('record-open'),'document scrolling is locked while inspecting');
+  assert.equal(w.document.activeElement,q('[data-action="clear-record"]'));
+  const close=q('[data-action="clear-record"]'),last=q('[data-action="record-source"]');
+  close.focus();key(close,'Tab',true);assert.equal(w.document.activeElement,last,'Shift+Tab wraps inside drawer');
+  key(last,'Tab');assert.equal(w.document.activeElement,close,'Tab wraps inside drawer');
+  q('.research-detail').scrollTop=700;
+  click('[data-preview-record]');assert.match(q('.research-detail').textContent,/arbitrary ×0.25/);
+  assert.equal(q('.research-detail').scrollTop,700,'preview rerender preserves inspection scroll position');
+  const multiplier=q('#detail-preview-multiplier');multiplier.value='.55';multiplier.dispatchEvent(new w.Event('change',{bubbles:true}));
+  assert.match(q('.research-detail').textContent,/arbitrary ×0.55/);
+  assert.equal(w.document.activeElement.id,'detail-preview-multiplier','drawer rerender preserves input focus');
+  key(q('#detail-preview-multiplier'),'Escape');
+  assert(!w.document.querySelector('.research-detail'),'Escape closes drawer from an input');
+  assert(!q('.app').inert);assert(!q('html').classList.contains('record-open'));
+  assert.equal(w.document.activeElement.dataset.record,selectedKey,'Escape returns focus to originating record');
+  assert(q('.focused-arm'),'closing record preserves focused direction');
+  click('.record-row');click('[data-dismiss-record]');assert(!w.document.querySelector('.research-detail'),'backdrop closes drawer');
+  click('.record-row');click('[data-action="clear-record"]');assert.equal(w.document.activeElement.dataset.record,selectedKey);
+  key(q('.record-row'),'Escape');assert(!w.document.querySelector('.focused-arm'),'next Escape returns to cross');
+  assert.equal(w.document.activeElement.dataset.focusArm,'обязательства');
+  assert.equal(JSON.stringify(fixture),original,'drawer, arm navigation and previews leave source records unchanged');
+  assert(calls.every(([url])=>url==='fixture.json'),'inspection never submits a journal entry');
+  assert.equal(w.getComputedStyle(q('.research-body')).display,'block','canvas never reserves a sidebar column');
+  for(const selector of ['.research-cross','.research-time']){
+   if(selector==='.research-time')click('[data-layout="time"]');
+   assert.equal(parseFloat(w.getComputedStyle(q(selector)).minWidth),0,'SVG can shrink to its container');
+   assert.equal(w.getComputedStyle(q(selector)).width,'100%');
+  }
+  assert.notEqual(w.getComputedStyle(q('.cross-stage')).overflow,'auto','canvas does not create horizontal scrolling');
+  click('[data-layout="cross"]');
+  for(const width of [390,1280]){
+   const contentWidth=width-(width===390?32:72)-(width===390?22:46);
+   for(const target of w.document.querySelectorAll('.cross-direction rect')){
+    const x=Number(target.getAttribute('x')),right=x+Number(target.getAttribute('width'));
+    assert(x>=0&&right<=1040,`direction target fits SVG at ${width}px`);
+    assert(right/1040*contentWidth<=contentWidth,'scaled hit region remains inside available canvas');
+   }
+  }
+  click('.research-block');key(q('[data-action="clear-record"]'),'Escape');
+  assert(w.document.activeElement.classList.contains('research-block'),'SVG block also receives restored focus');
+  click('[data-tab="method"]');assert.match(q('#workspace-main').textContent,/Saving records both −2…\+2 ratings; each starts at 0/,'method describes actual saved rating defaults');
+  w.close();
+ }
  let {w,calls,q,click}=await mount();
  assert.equal(q('[role="tab"][aria-selected=true]').dataset.tab,'research');
  assert.equal(w.document.querySelectorAll('.record-row').length,10,'every fixture record is available');
@@ -113,5 +249,5 @@ async function mount({raw=fixture,demo=true,hash='',reviews=[]}={}){
  for(const rect of w.document.querySelectorAll('.research-block rect'))assert(Number(rect.getAttribute('x'))+Number(rect.getAttribute('width'))<=1040,'dense time bars stay inside plot');
  w.close();
  ({w,q}=await mount({hash:'#today'}));assert.equal(q('[role="tab"][aria-selected=true]').dataset.tab,'today');w.close();
- console.log('PASS research: normalization, expiry, immutable weighted previews, complete cross/time/process renderer, filters, evidence receipts/formulas, fictional isolation, private check-in API, day preservation, history, keyboard and deep links');
+ console.log('PASS research: live identity reconciliation (reorder/removal/arm move/adapter identity/collisions), compact controls, responsive SVG constraints, four arm drilldowns, complete weight/time lists, modal drawer focus trap/Escape/return, immutable inspection, normalization, expiry, immutable weighted previews, complete cross/time/process renderer, filters, evidence receipts/formulas, fictional isolation, private check-in API, day preservation, history, keyboard and deep links');
 })().catch(error=>{console.error(error);process.exit(1);});
