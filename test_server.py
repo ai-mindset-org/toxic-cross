@@ -5,6 +5,9 @@ from pathlib import Path
 import tempfile
 import threading
 import unittest
+import shutil
+import subprocess
+import sys
 from unittest.mock import patch
 import server
 
@@ -12,14 +15,71 @@ class PrivateAPITest(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.folder=Path(self.tmp.name)
         self.original=server.ИСТОЧНИКИ;server.ИСТОЧНИКИ=self.folder
+        self.original_root=server.КОРЕНЬ;server.КОРЕНЬ=self.folder
+        (self.folder/'workspace.html').write_text('<html><head></head><body>CURRENT WORKSPACE</body></html>')
+        (self.folder/'index.html').write_text('<html><head><meta http-equiv="refresh" content="0; url=workspace.html"></head><body>CLASSIC CROSS</body></html>')
         self.http=server.Сервер(('127.0.0.1',0),server.Рук)
         self.thread=threading.Thread(target=self.http.serve_forever,daemon=True);self.thread.start()
     def tearDown(self):
-        self.http.shutdown();self.http.server_close();server.ИСТОЧНИКИ=self.original;self.tmp.cleanup()
+        self.http.shutdown();self.http.server_close();server.ИСТОЧНИКИ=self.original;server.КОРЕНЬ=self.original_root;self.tmp.cleanup()
     def post(self,path,body,origin=None):
         conn=http.client.HTTPConnection('127.0.0.1',self.http.server_address[1]);headers={'Content-Type':'application/json'}
         if origin:headers['Origin']=origin
         conn.request('POST',path,json.dumps(body),headers);response=conn.getresponse();status=response.status;response.read();conn.close();return status
+
+    def request_json(self,path,body=None):
+        conn=http.client.HTTPConnection('127.0.0.1',self.http.server_address[1])
+        conn.request('GET' if body is None else 'POST',path,None if body is None else json.dumps(body),{} if body is None else {'Content-Type':'application/json'})
+        response=conn.getresponse();status=response.status;data=json.loads(response.read());conn.close();return status,data
+
+    def entry(self,**values):
+        return {'occurrence':'a'*64,'start':'2026-10-16T09:00:00Z','end':'2026-10-16T10:00:00Z','recorded':'2026-10-16T11:00:00Z','feeling':-1,'energy':1,'reframe':'Fictional next step',**values}
+
+    def test_sync_unions_native_and_web_preserves_newest_and_private_allowlist(self):
+        self.assertEqual(self.request_json('/check-in',self.entry(title='DO NOT STORE'))[0],200)
+        native=self.entry(occurrence='b'*64,recorded='2026-10-16T11:01:00.123Z',feeling=2)
+        old=self.entry(recorded='2026-10-16T10:59:00Z',feeling=0)
+        status,reply=self.request_json('/check-ins/sync',{'entries':[native,old]})
+        self.assertEqual(status,200);self.assertEqual(len(reply['entries']),2)
+        self.assertEqual(len(reply['revision']),64)
+        self.assertEqual(next(x['feeling'] for x in reply['entries'] if x['occurrence']=='a'*64),-1)
+        self.assertTrue(all(set(x)=={'occurrence','start','end','recorded','feeling','energy','reframe'} for x in reply['entries']))
+        newer=self.entry(recorded='2026-10-16T12:02:00+01:00',feeling=1)
+        status,reply=self.request_json('/check-ins/sync',{'entries':[newer]})
+        self.assertEqual(status,200);self.assertEqual(next(x['feeling'] for x in reply['entries'] if x['occurrence']=='a'*64),1)
+        self.assertEqual(self.request_json('/check-ins')[1],reply['entries'])
+
+    def test_invalid_sync_batch_never_partially_writes(self):
+        self.request_json('/check-in',self.entry())
+        before=(self.folder/'check-ins.local.json').read_bytes()
+        invalid=self.entry(occurrence='b'*64,feeling=True)
+        self.assertEqual(self.post('/check-ins/sync',{'entries':[self.entry(feeling=2),invalid]}),400)
+        self.assertEqual((self.folder/'check-ins.local.json').read_bytes(),before)
+        self.assertEqual(self.post('/check-ins/sync',{'entries':[self.entry(start='2026-10-16T09:00:00')]}),400)
+        future=(dt.datetime.now(dt.timezone.utc)+dt.timedelta(days=1)).isoformat()
+        self.assertEqual(self.post('/check-ins/sync',{'entries':[self.entry(recorded=future)]}),400)
+        self.assertEqual(self.post('/check-ins/sync',{'entries':[self.entry()]*5001}),400)
+        self.assertEqual(self.post('/check-ins/sync',{'entries':[]},'https://untrusted.example'),403)
+
+    def test_corrupt_journal_is_preserved_and_read_reports_failure(self):
+        path=self.folder/'check-ins.local.json';path.write_text('{broken')
+        self.assertEqual(self.request_json('/check-ins')[0],503)
+        self.assertEqual(self.post('/check-ins/sync',{'entries':[self.entry()]}),400)
+        self.assertEqual(path.read_text(),'{broken')
+
+    def test_workspace_has_no_redirect_flash_and_classic_is_reachable(self):
+        for path,marker in [('/',b'CURRENT WORKSPACE'),('/index.html',b'CURRENT WORKSPACE'),('/classic-frame',b'CLASSIC CROSS')]:
+            conn=http.client.HTTPConnection('127.0.0.1',self.http.server_address[1]);conn.request('GET',path)
+            r=conn.getresponse();text=r.read();self.assertEqual(r.status,200);self.assertIsNone(r.getheader('Location'))
+            self.assertIn(marker,text);self.assertNotIn(b'http-equiv="refresh"',text)
+            self.assertIn('no-store',r.getheader('Cache-Control'));conn.close()
+
+    def test_private_subdirectory_entrypoint_resolves_project_module(self):
+        private=self.folder/'private';scripts=private/'сервер';scripts.mkdir(parents=True)
+        shutil.copyfile(server.__file__,scripts/'статика.py')
+        shutil.copyfile(Path(server.__file__).parent/'provenance.py',private/'provenance.py')
+        result=subprocess.run([sys.executable,'-c','import runpy,sys; runpy.run_path(sys.argv[1],run_name="private_layout")',str(scripts/'статика.py')],cwd=self.folder,capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
     def test_private_checkin_validation_and_replace(self):
         body={'occurrence':'a'*64,'start':'2026-10-16T09:00:00Z','end':'2026-10-16T10:00:00Z','feeling':-1,'energy':1,'reframe':'A fictional next step','title':'MUST NOT BE STORED'}
         self.assertEqual(self.post('/check-in',body),200)

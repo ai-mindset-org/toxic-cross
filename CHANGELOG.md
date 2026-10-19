@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 – 2026-10-19 · experimental developer preview
+
+- Restored a wide research instrument: Cross, Time and Process views, complete four-direction records, search, filters and source details.
+- The private board serves the current workspace directly; the preserved classic instrument is available under `/classic`.
+- Shared check-ins between the private board and Mac companion, with offline retention, newest-edit conflict resolution and visible acknowledgement receipts.
+- Source provenance separates manual annotations, canonical adapters, upstream captures and collection checks; original weight calculations and manual overrides are inspectable.
+- Temporary per-record/per-direction/all-record previews keep the original normalization fixed and leave source records intact.
+- Public demo, personal board and Mac companion boundaries are explained on the product/setup pages. Public examples never access personal sources.
+- Existing native shell, local calendar source choices and quiet notification policy remain in place. Developer ID notarization remains outstanding.
+
 ## 2.0.0 – 2026-10-16 · experimental developer preview
 
 - New English day workspace: event phases, readable balance, source receipts and a deliberate four-question method.

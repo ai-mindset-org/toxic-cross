@@ -113,6 +113,11 @@ final class ПанельView: NSView {
     private var reframePreview=false
     private var feedback=""
     var reviews:EventReviewStore?
+    var reviewSyncStatus="Check-ins · this Mac only"
+    var syncReviews:(()->Void)?
+    var toggleReviewSync:((Bool)->Void)?
+    var reviewSyncEnabled=false
+    var openResearch:(()->Void)?
     var saveReview:((CalendarMoment,Int,Int,String)->Bool)?
     var toggleReminders:((Bool)->Void)?
     var saveBoard:((String)->Bool)?
@@ -143,7 +148,7 @@ final class ПанельView: NSView {
     var menuMode="mark"
     override init(frame:NSRect) {
         super.init(frame:frame);appearance=NSApp.effectiveAppearance;wantsLayer=true;layer?.backgroundColor=AIMThemePolicy.resolvedCGColor(UI.white,appearance:effectiveAppearance)
-        let info=Bundle.main.infoDictionary,version=(info?["CFBundleShortVersionString"] as? String ?? "2.0.0")+" · build "+(info?["CFBundleVersion"] as? String ?? "10")
+        let info=Bundle.main.infoDictionary,version=(info?["CFBundleShortVersionString"] as? String ?? "2.1.0")+" · build "+(info?["CFBundleVersion"] as? String ?? "11")
         header=AIMAppHeader(mark:.krest,name:"Krest",status:"Day balance",version:version,width:Self.content,onSettings:{[weak self] in self?.select("settings")},pin:pin,onClose:{[weak self] in self?.close?()})
         header.closeButton?.toolTip="close the panel · esc or ⌘W"
         let voxel=AIMVoxelView(model:AIMVoxelModels.krest,frame:NSRect(x:0,y:0,width:40,height:40))
@@ -197,6 +202,11 @@ final class ПанельView: NSView {
     func показать(_ d:День?){day=d;if active != "settings" {render()}}
     func history(_ data:[BalanceRecord],status:String){points=data;archiveStatus=status;if active=="history"{render()}}
     func calendar(_ data:CalendarFrame){frameData=data;if active=="day" && checkInEvent == nil{render()}}
+    func checkInReceipt(_ status:String,enabled:Bool) {
+        reviewSyncStatus=status;reviewSyncEnabled=enabled
+        if ["day","history"].contains(active),checkInEvent == nil {render()}
+        refreshPreferences()
+    }
     func refreshPreferences(){if active=="settings",keyField?.recording != true,!(window?.firstResponder is NSTextView){render()}}
     private func label(_ text:String,size:CGFloat=11,muted:Bool=false)->NSTextField {
         let l=NSTextField(wrappingLabelWithString:text);l.font=UI.mono(size);l.textColor=muted ? UI.gray600:UI.ink
@@ -243,6 +253,7 @@ final class ПанельView: NSView {
         let refresh=button(loading ? "checking…":"refresh",tip:"read the board or the calendar again now · ⌘R"){[weak self] in self?.обновить?()};refresh.isEnabled = !loading
         var actions:[NSView]=[refresh,button("day & calendar",tip:"switch to today's calls and calendar load · key 2"){[weak self] in self?.select("day")}]
         if d.режим == .борт {actions.append(button("open board",tip:"open the private board in the browser"){[weak self] in self?.открытьБорт?()})};add(row(actions))
+        if !boardAddress.isEmpty {add(button("open research board",width:240,tip:"open the wide research board in your browser · #research"){[weak self] in self?.openResearch?()})}
         rule();add(label("Reframe the day",size:16))
         add(label("A deliberate change of perspective. Review the four questions, choose a concrete next step, then check whether it helped.",size:11,muted:true))
         add(button(reframePreview ? "return to observed":"preview a reframe",width:210,tip:"temporary illustration; the original observations and obligations stay intact"){[weak self] in self?.reframePreview.toggle();self?.render()})
@@ -252,12 +263,19 @@ final class ПанельView: NSView {
             for question in ["Obligations · What is truly mine, and what can I renegotiate?","Past · What evidence or previous skill can support me?","Resources · What support is available for one next step?","Future · What other outcome is plausible, and what can I influence?"] {add(label(question))}
         }
         rule();add(label("Sources",size:16))
-        for source in d.источники {add(label(Copy.name(source.имя)+" · "+Copy.status(source.статус),size:10,muted:true));if source.статус == "dead" || source.статус == "quiet" {add(label(source.note,size:10,muted:true))}}
+        for source in d.источники {
+            add(label(Copy.name(source.имя)+" · "+source.displayStatus(),size:10,muted:true))
+            if !source.note.isEmpty {add(label(source.note,size:10,muted:true))}
+            if !source.timingReceipt.isEmpty {add(label(source.timingReceipt,size:10,muted:true))}
+        }
     }
     private func dayBody() {
         if let event=checkInEvent {checkInBody(event);return}
         let now=Date(),date=DateFormatter();date.locale=Locale(identifier:"en_US_POSIX");date.dateFormat="EEE d MMM"
         add(label(date.string(from:now)+" · "+TimeZone.current.abbreviation()!,size:18))
+        add(label(reviewSyncStatus,size:10,muted:true))
+        if reviewSyncEnabled {add(button("sync check-ins",width:200,tip:"exchange personal ratings with the configured private board; calendar sources are unchanged"){[weak self] in self?.syncReviews?()})}
+        if !boardAddress.isEmpty {add(button("open research board",width:240,tip:"open the wide research board · #research"){[weak self] in self?.openResearch?()})}
         add(row([button("open calendar",width:164,tip:"open Calendar Control, or macOS Calendar when it is not installed"){[weak self] in self?.openCalendar?()},button("refresh sources",width:164,tip:"read the calendar snapshot and the board again; Google is not asked"){[weak self] in self?.обновить?()}]))
         if let frame=frameData {
             add(label(frame.receipt(at:now),size:10,muted:true))
@@ -310,7 +328,7 @@ final class ПанельView: NSView {
         if e.phase(at:now)=="now" {let edge=NSView();edge.wantsLayer=true;edge.layer?.backgroundColor=AIMThemePolicy.resolvedCGColor(UI.red,appearance:effectiveAppearance);edge.translatesAutoresizingMaskIntoConstraints=false;edge.widthAnchor.constraint(equalToConstant:3).isActive=true;edge.heightAnchor.constraint(equalToConstant:24).isActive=true;add(row([edge,heading]))}else{add(heading)}
         f.dateFormat="HH:mm";add(label("until "+f.string(from:e.end)+" · "+e.source,size:10,muted:true))
         if let review=reviews?.review(e) {add(label("YOUR CHECK-IN · \(EventReview.feelings[review.feeling+2]) · energy \(EventReview.energies[review.energy+2])",size:10,muted:true))}
-        var actions:[NSView]=[button(reviews?.review(e) == nil ? "check in":"edit check-in",width:150,tip:"rate feeling and energy; stored privately on this Mac"){[weak self] in
+        var actions:[NSView]=[button(reviews?.review(e) == nil ? "check in":"edit check-in",width:150,tip:"rate feeling and energy; saved on this Mac, with optional private-board sync in Settings"){[weak self] in
             guard let self else{return};let previous=self.reviews?.review(e);self.reviewFeeling=previous?.feeling ?? 0;self.reviewEnergy=previous?.energy ?? 0;self.checkInEvent=e;self.feedback="";self.render()
         }]
         if let url=e.url {actions.append(button("open event link",width:164,tip:"open the event's existing link"){NSWorkspace.shared.open(url)})}
@@ -325,7 +343,7 @@ final class ПанельView: NSView {
         add(KrestPopUp(items:Array(-2...2).map{"\($0 > 0 ? "+":"")\($0) · "+EventReview.energies[$0+2]},selected:reviewEnergy+2,width:360,tip:"energy compared with just before the event"){[weak self] in self?.reviewEnergy=$0-2})
         add(label("A different perspective or one next step",size:16))
         let field=NSTextField(string:reviews?.review(event)?.reframe ?? "");field.font=UI.mono(12);field.placeholderString="Optional · one sentence, up to 280 characters";field.translatesAutoresizingMaskIntoConstraints=false;field.widthAnchor.constraint(equalToConstant:Self.content-14).isActive=true;field.heightAnchor.constraint(equalToConstant:52).isActive=true;field.setAccessibilityLabel("Private reframe or next step");reframeField=field;add(field)
-        add(label("Saved only on this Mac in a private check-in file. Event titles and URLs are excluded. Skipping is always valid; no score is inferred.",size:10,muted:true))
+        add(label(reviewSyncEnabled ? "Saved on this Mac, then synced with your configured private board. Ratings, times and your optional sentence are shared. Event titles and URLs are excluded." : "Saved on this Mac in a private check-in file. Enable ratings sync in Settings to share with your private board. Event titles and URLs are excluded.",size:10,muted:true))
         add(row([button("save check-in",width:180,tip:"store your explicit rating and optional sentence locally"){[weak self] in
             guard let self else{return};let text=String(self.reframeField?.stringValue.prefix(280) ?? "");self.window?.makeFirstResponder(nil)
             if self.saveReview?(event,self.reviewFeeling,self.reviewEnergy,text) == true {self.checkInEvent=nil;self.feedback="Check-in saved on this Mac"}else{self.feedback="Could not save. Your existing file is preserved."};self.render()
@@ -333,6 +351,8 @@ final class ПанельView: NSView {
         if !feedback.isEmpty {add(label(feedback))}
     }
     private func historyBody() {
+        add(label(reviewSyncStatus,size:10,muted:true))
+        if reviewSyncEnabled {add(button("sync check-ins",width:200,tip:"check for browser check-ins and send pending local ratings"){[weak self] in self?.syncReviews?()})}
         if let records=reviews?.records,!records.isEmpty {
             add(label("Your recent check-ins",size:17))
             let stamp=DateFormatter();stamp.dateFormat="dd MMM HH:mm"
@@ -389,6 +409,10 @@ final class ПанельView: NSView {
         add(button(shared ? "calendar sharing: on":"calendar sharing: off",width:280,tip:"send event titles and times to your configured private board; off by default"){[weak self] in UserDefaults.standard.set(!shared,forKey:CalendarBoardBridge.enabledKey);self?.обновить?();self?.render()})
         add(label("Optional sharing sends titles and times to your configured board every source check. No attendees, notes or meeting links are shared. "+bridgeStatus,size:10,muted:true))
         rule();add(label("Event check-ins",size:18))
+        let available=CheckInConnection.root(boardAddress) != nil
+        let sync=button(reviewSyncEnabled ? "ratings sync: on":"ratings sync: off",width:300,tip:"share ratings, event times and the optional sentence with your configured private board; on for an existing connection"){[weak self] in guard let self else{return};self.toggleReviewSync?(!self.reviewSyncEnabled)}
+        sync.isEnabled=available;add(sync)
+        add(label("Private board connection enables ratings sync by default. With no board, check-ins stay local. Public demonstration boards are excluded. "+reviewSyncStatus,size:10,muted:true))
         let reminders=UserDefaults.standard.bool(forKey:EventNotices.enabledKey)
         add(button(reminders ? "check-in reminders: on":"check-in reminders: off",width:300,tip:"one quiet notification after a freshly observed event ends; no backfill or event title"){[weak self] in self?.toggleReminders?(!reminders)})
         add(label(noticeStatus,size:10,muted:true));add(label("Feeling and energy are personal reports on a −2…+2 scale. They never mark a task complete or diagnose a state. Private optional notes are kept separately from aggregate history.",size:10,muted:true));rule()

@@ -15,6 +15,13 @@ struct EventReview: Codable, Equatable {
     static func key(_ event: CalendarMoment) -> String {
         SHA256.hash(data: Data(event.id.utf8)).map { String(format: "%02x", $0) }.joined()
     }
+    func valid(at now: Date = Date()) -> Bool {
+        occurrence.range(of: "^[A-Za-z0-9_.:-]{1,160}$", options: .regularExpression) != nil
+            && (-2...2).contains(feeling) && (-2...2).contains(energy)
+            && end > start && start.timeIntervalSince1970.isFinite && end.timeIntervalSince1970.isFinite
+            && recorded.timeIntervalSince1970.isFinite && recorded <= now.addingTimeInterval(300)
+            && reframe.unicodeScalars.count <= 280
+    }
 }
 
 /// Explicit personal input. Event titles and source URLs never enter this file.
@@ -27,7 +34,7 @@ final class EventReviewStore {
         guard FileManager.default.fileExists(atPath: url.path) else { return }
         do {
             records = try JSONDecoder().decode([EventReview].self, from: Data(contentsOf: url))
-            guard records.allSatisfy({(-2...2).contains($0.feeling) && (-2...2).contains($0.energy) && $0.end > $0.start}) else {
+            guard records.count <= 5000, records.allSatisfy({$0.valid()}) else {
                 records = []; issue = "Check-in file is invalid; original preserved"; return
             }
         } catch { issue = "Check-in file could not be read; original preserved" }
@@ -35,11 +42,28 @@ final class EventReviewStore {
     func review(_ event: CalendarMoment) -> EventReview? { records.first { $0.occurrence == EventReview.key(event) } }
     @discardableResult func save(_ event: CalendarMoment, feeling: Int, energy: Int, reframe: String, now: Date = Date()) -> Bool {
         guard issue == nil, (-2...2).contains(feeling), (-2...2).contains(energy), event.end > event.start else { return false }
-        let value = EventReview(occurrence: EventReview.key(event), start: event.start, end: event.end, recorded: now, feeling: feeling, energy: energy, reframe: String(reframe.prefix(280)))
-        let next = ([value] + records.filter { $0.occurrence != value.occurrence }).sorted { $0.recorded > $1.recorded }
+        // The web wire uses milliseconds. Advance at least one millisecond on an edit so a rapid
+        // save does not become an irresolvable timestamp tie with the server's canonical record.
+        let milliseconds=floor(now.timeIntervalSince1970*1000)
+        let previous=review(event).map{floor($0.recorded.timeIntervalSince1970*1000)+1} ?? milliseconds
+        let recorded=Date(timeIntervalSince1970:max(milliseconds,previous)/1000)
+        let value = EventReview(occurrence: EventReview.key(event), start: event.start, end: event.end, recorded: recorded, feeling: feeling, energy: energy, reframe: String(String.UnicodeScalarView(reframe.unicodeScalars.prefix(280))))
+        return merge([value], now: now)
+    }
+    /// The same merge is used for network replies and local edits. A reply in flight cannot replace a newer edit.
+    @discardableResult func merge(_ incoming: [EventReview], now: Date = Date(), preferIncomingOnTie: Bool = false) -> Bool {
+        guard issue == nil, incoming.count <= 5000, incoming.allSatisfy({$0.valid(at:now)}) else { return false }
+        var values = [String: EventReview]()
+        for value in records + incoming {
+            if let old=values[value.occurrence],old.recorded > value.recorded || (old.recorded == value.recorded && !preferIncomingOnTie) {continue}
+            values[value.occurrence]=value
+        }
+        guard values.count <= 5000 else { return false }
+        let next = values.values.sorted { $0.recorded == $1.recorded ? $0.occurrence < $1.occurrence : $0.recorded > $1.recorded }
+        if next == records { return true }
         do {
             try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
-            let data = try JSONEncoder().encode(Array(next.prefix(5000)))
+            let data = try JSONEncoder().encode(next)
             try data.write(to: url, options: [.atomic, .completeFileProtectionUnlessOpen])
             try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
             records = next; return true

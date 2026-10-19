@@ -1,6 +1,6 @@
 # Privacy and security
 
-Krest 2.0 is an experimental single-user tool. Report security issues privately through the repository owner's GitHub contact before publishing sensitive details.
+Krest 2.1 is an experimental single-user tool. Report security issues privately through the repository owner's GitHub contact before publishing sensitive details.
 
 ## What stays where
 
@@ -9,14 +9,14 @@ Krest 2.0 is an experimental single-user tool. Report security issues privately 
 - The separate check-ins-v1.json stores an occurrence fingerprint, start/end times, answer time, feeling, energy and your optional sentence. It excludes event titles, attendees, descriptions and meeting URLs. Files are written atomically with mode 0600. This is filesystem privacy, not application-level encryption.
 - Calendar and notification permissions are separate. Check-in reminders are off by default, at most once daily during 08:00–21:00, with a generic body and no event title. Sleep or Focus may prevent delivery. No backlog is replayed after wake.
 - Connecting a private board makes HTTP requests to that address. Optional calendar sharing sends selected event titles and times to that board, excluding attendees, notes and meeting URLs. Source freshness stays visible. Public demo interactions never call a private board.
-- Browser check-ins on your own board are saved on that board. Public fictional demo check-ins stay in browser localStorage. These stores are separate from native local check-ins in v2.
+- Browser check-ins on your own board are saved on that board. Connecting that private board enables ratings sync by default, with a separate Settings switch to keep ratings local. Sync exchanges occurrence fingerprints, start/end and recorded times, ratings and optional notes. Newer edits win; unacknowledged offline records are retained. Board-scoped sync receipts contain hashes and acknowledgement time, without note text. The native client refuses redirects and known public demo destinations. Public fictional demo check-ins remain isolated in browser localStorage.
 - Exported JSON may contain your notes. Backups, exports, server administrators and other privileged software are outside this tool's protection. Removing a calendar event does not remove a separate check-in automatically.
 
 ## Self-hosting boundary
 
 server.py binds to 127.0.0.1 by default. Keep it there for local use. The API has no independent account authentication. Do not expose the process to a public host, port forward or general LAN. Remote use requires your own authenticated private network and TLS. A trusted network is a deployment assumption, not an app-level user identity.
 
-JSON writes are bounded, schema-checked and Origin-checked. POST Host values accept loopback and private Tailscale names by default; explicit trusted names can be supplied through KREST_ALLOWED_HOSTS. No permissive CORS is added. This is not a security audit. Arbitrary adapters or modified source inherit the running user's access.
+JSON writes are bounded, schema-checked and Origin-checked. Sync accepts at most 5,000 records and an 8 MB request. Timestamps require time zones; values more than five minutes in the future are rejected. A malformed batch never partially updates the journal. Unreadable journals are preserved and report failure. POST Host values accept loopback and private Tailscale names by default; explicit trusted names can be supplied through KREST_ALLOWED_HOSTS. No permissive CORS is added. This is not a security audit. Arbitrary adapters or modified source inherit the running user's access.
 
 ## Public material
 

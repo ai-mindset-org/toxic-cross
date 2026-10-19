@@ -19,6 +19,23 @@ assert(Свежесть.endpoint("file:///etc/passwd") == nil)
 assert(Свежесть.endpoint("https://name:secret@example.test") == nil)
 print("contract: valid/invalid payload, date/timezone, staleness, URL normalization passed")
 
+var sourcePayload=try JSONSerialization.jsonObject(with:fixture) as! [String:Any]
+let capture="2026-09-27T09:00:00Z",expiry="2026-09-27T15:00:00Z",checked="2026-09-27T21:47:00Z"
+sourcePayload["источники"]=["обещания":["статус":"quiet","заметка":"Snapshot is 12.3 h old","capturedAt":capture,"checkedAt":checked,"expiresAt":expiry],"техничка":["статус":"live","когда":checked,"expiresAt":expiry]]
+let staleSources=День.разобрать(try JSONSerialization.data(withJSONObject:sourcePayload),живой:true)!
+let promiseSource=staleSources.источники.first{$0.имя=="обещания"}!
+assert(promiseSource.статус=="quiet" && promiseSource.note=="Snapshot is 12.3 h old","presentation preserves raw receipt and status")
+assert(promiseSource.displayStatus(at:b)=="snapshot / limited freshness · expired")
+assert(!promiseSource.displayStatus(at:Свежесть.дата(capture)!).contains("expired"))
+assert(promiseSource.displayStatus(at:Свежесть.дата(expiry)!).contains("expired"),"expiry boundary is inclusive")
+assert(promiseSource.capturedAt==capture && promiseSource.checkedAt==checked && promiseSource.expiresAt==expiry)
+assert(promiseSource.timingReceipt.contains(capture) && promiseSource.timingReceipt.contains(checked),"fresh check never refreshes an old capture")
+assert(staleSources.источники.first{$0.имя=="техничка"}!.displayStatus(at:b)=="observed · expired","expiresAt overrides a live label too")
+assert(staleSources.источники.first{$0.имя=="техничка"}!.checkedAt==checked,"legacy check timestamp is retained")
+assert(День.Источник(имя:"test",статус:"quiet").displayStatus(at:b)=="snapshot / limited freshness")
+assert(День.Источник(имя:"test",статус:"live",expiresAt:"invalid").displayStatus(at:b)=="observed · expiry unknown")
+print("source receipts: quiet has no zero-activity claim; expiry boundary/live override; distinct capture/check times; malformed expiry passed")
+
 let temp=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
 try FileManager.default.createDirectory(at:temp,withIntermediateDirectories:true)
 defer { try? FileManager.default.removeItem(at:temp) }
@@ -99,6 +116,7 @@ panel.reviews=reviews;panel.saveReview={event,feeling,energy,note in reviews.sav
 panel.calendar(CalendarFrame(events:[uiEvent],source:"fictional test",fetched:uiNow,start:uiStart,end:uiStart.addingTimeInterval(86400),issue:nil));panel.select("day")
 func descendants(_ view:NSView)->[NSView] {view.subviews.flatMap{[$0]+descendants($0)}}
 let checkInButton=descendants(panel).compactMap{$0 as? NSButton}.first{$0.accessibilityLabel()=="check in"}!
+assert(checkInButton.toolTip?.contains("optional private-board sync") == true)
 checkInButton.performClick(nil)
 let ratings=descendants(panel).compactMap{$0 as? KrestPopUp};assert(ratings.count==2)
 ratings[0].changed?(4);ratings[1].changed?(1)

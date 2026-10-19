@@ -35,4 +35,4 @@ def собрать(rules, now):
     busy=sum((b-a).total_seconds()/3600 for a,b in merged)
     available=max(0,(day+dt.timedelta(hours=19)-max(now,day+dt.timedelta(hours=9))).total_seconds()/3600-busy)
     items.append({'id':'calendar-free','т':f'{available:.1f} h unscheduled','луч':'ресурсы','вес':min(4,available*.5),'источник':'календарь','охват':'ситуативное','т_ч':12,'флип':'Choose one useful use of this time','факт':'Union of busy intervals in the remaining 09:00–19:00 window; availability is unverified'})
-    return {'статус':'live','элементы':items,'события':events,'expiresAt':(stamp+dt.timedelta(seconds=data.get('maxAgeSeconds',3600))).isoformat(),'заметка':f'{len(events)} timed events · Calendar Control · captured {data["fetchedAt"]}'}
+    return {'статус':'live','элементы':items,'события':events,'capturedAt':stamp.isoformat(),'expiresAt':(stamp+dt.timedelta(seconds=data.get('maxAgeSeconds',3600))).isoformat(),'заметка':f'{len(events)} timed events · Calendar Control · captured {data["fetchedAt"]}'}

@@ -48,7 +48,22 @@ enum UI {
 struct День {
     struct Луч { let имя: String; let сумма: Double; let штук: Int; let верх: [Блок] }
     struct Блок { let т: String; let вес: Double; let природа: String }
-    struct Источник { let имя: String; let статус: String; var note: String = "" }
+    struct Источник {
+        let имя: String
+        let статус: String
+        var note: String = ""
+        var capturedAt: String? = nil
+        var checkedAt: String? = nil
+        var expiresAt: String? = nil
+        func displayStatus(at now:Date=Date()) -> String {
+            guard let expiresAt else{return Copy.status(статус)}
+            guard let expiry=Свежесть.дата(expiresAt) else{return Copy.status(статус)+" · expiry unknown"}
+            return Copy.status(статус)+(now >= expiry ? " · expired":"")
+        }
+        var timingReceipt:String {
+            [capturedAt.map{"Captured "+$0},checkedAt.map{"checked "+$0},expiresAt.map{"expires "+$0}].compactMap{$0}.joined(separator:" · ")
+        }
+    }
     struct Fact { let title: String; let time: String; let detail: String }
 
     let дата: String
@@ -105,8 +120,10 @@ struct День {
 
         let баланс = (o["баланс"] as? [String: Any]) ?? [:]
         let ист = (o["источники"] as? [String: Any]) ?? [:]
-        let источники = ист.keys.sorted().map {
-            Источник(имя: $0, статус: ((ист[$0] as? [String: Any])?["статус"] as? String) ?? "?", note:((ист[$0] as? [String:Any])?["заметка"] as? String) ?? "")
+        let источники = ист.keys.sorted().map { name in
+            let raw=ист[name] as? [String:Any] ?? [:]
+            return Источник(имя:name,статус:raw["статус"] as? String ?? "?",note:raw["заметка"] as? String ?? "",
+                            capturedAt:raw["capturedAt"] as? String,checkedAt:(raw["checkedAt"] as? String) ?? (raw["когда"] as? String),expiresAt:raw["expiresAt"] as? String)
         }
 
         return День(дата: (o["дата"] as? String) ?? "",
@@ -234,6 +251,7 @@ final class Delegate: NSObject, NSApplicationDelegate {
     private let historyStore = BalanceHistory()
     private let historySync = HistorySync()
     private let reviewStore = EventReviewStore()
+    private let checkInSync = CheckInSync()
     private let eventNotices = EventNotices()
     private var lastBridgeCapture:Date?
     private var historyStatus = "Local history"
@@ -327,6 +345,7 @@ final class Delegate: NSObject, NSApplicationDelegate {
         панель.contentSize = NSSize(width: ПанельView.width, height: ПанельView.height)
         панель.behavior = .applicationDefined
         вид.открытьБорт = { [weak self] in self?.открытьБорт() }
+        вид.openResearch = { [weak self] in self?.openResearchBoard() }
         вид.обновить = { [weak self] in self?.забрать() }
         вид.syncHistory = { [weak self] in self?.refreshHistory(force:true) }
         вид.close = { [weak self] in self?.surface.close(reason:.closeButton) }
@@ -342,13 +361,25 @@ final class Delegate: NSObject, NSApplicationDelegate {
             else if let calendar=NSWorkspace.shared.urlForApplication(withBundleIdentifier:"com.apple.iCal") {NSWorkspace.shared.open(calendar)}
         }
         вид.reviews=reviewStore
-        вид.saveReview = { [weak self] event,feeling,energy,text in self?.reviewStore.save(event,feeling:feeling,energy:energy,reframe:text) ?? false }
+        checkInSync.onChange = { [weak self] status in
+            guard let self else{return}
+            self.вид.checkInReceipt(status,enabled:CheckInConnection.enabled(address:self.адрес))
+        }
+        вид.saveReview = { [weak self] event,feeling,energy,text in
+            guard let self,self.reviewStore.save(event,feeling:feeling,energy:energy,reframe:text) else{return false}
+            self.syncCheckIns(force:true);return true
+        }
+        вид.syncReviews = { [weak self] in self?.syncCheckIns(force:true) }
+        вид.toggleReviewSync = { [weak self] enabled in
+            UserDefaults.standard.set(enabled,forKey:CheckInConnection.enabledKey);self?.syncCheckIns(force:true)
+        }
         вид.boardAddress=адрес ?? ""
+        вид.reviewSyncEnabled=CheckInConnection.enabled(address:адрес)
         вид.saveBoard = { [weak self] address in
             let trimmed=address.trimmingCharacters(in:.whitespacesAndNewlines)
             guard trimmed.isEmpty || Свежесть.endpoint(trimmed) != nil else{return false}
             UserDefaults.standard.set(trimmed,forKey:"KrestURL");self?.вид.boardAddress=trimmed
-            self?.lastBridgeCapture=nil;self?.забрать();return true
+            self?.lastBridgeCapture=nil;self?.syncCheckIns(force:true);self?.забрать();return true
         }
         вид.toggleReminders = { [weak self] enabled in
             self?.eventNotices.setEnabled(enabled) { [weak self] in
@@ -432,14 +463,16 @@ final class Delegate: NSObject, NSApplicationDelegate {
         m.addItem(.separator())
         m.addItem(withTitle: "Refresh sources", action: #selector(забрать), keyEquivalent: "r").target = self
         m.addItem(withTitle: "Open private board…", action: #selector(открытьБорт), keyEquivalent: "o").target = self
+        m.addItem(withTitle:"Open research board…",action:#selector(openResearchBoard),keyEquivalent:"").target=self
         m.addItem(withTitle:"Balance history…",action:#selector(showHistory),keyEquivalent:"3").target=self
         m.addItem(withTitle:"Settings…",action:#selector(showSettings),keyEquivalent:",").target=self
         m.addItem(.separator())
         m.addItem(withTitle: "Quit Krest", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         let tips=["Today & calendar…":"open the panel on today's calls and calendar load","Refresh sources":"read the board or the calendar again now",
-                  "Open private board…":"open the private board in the browser","Balance history…":"open the panel on saved observations",
+                  "Open private board…":"open the private board in the browser","Open research board…":"open the wide research board · #research","Balance history…":"open the panel on saved observations",
                   "Settings…":"menu bar mode, pin, theme and the global key","Quit Krest":"stop krest; the history file stays on this Mac"]
         for item in m.items { if let tip=tips[item.title] { item.toolTip=tip } }
+        m.items.filter{["Open private board…","Open research board…"].contains($0.title)}.forEach{$0.isEnabled = адрес != nil}
         if surface.isShown {
             m.popUp(positioning:nil,at:NSPoint(x:20,y:72),in:вид)
         } else if let button=статус.button {
@@ -451,13 +484,21 @@ final class Delegate: NSObject, NSApplicationDelegate {
     @objc private func showHistory(){showPanel();вид.select("history")}
     @objc private func showSettings(){showPanel();вид.select("settings")}
     @objc private func открытьБорт() {
-        guard let а = адрес, let u = URL(string: а) else { return }
+        guard let u = CheckInConnection.board(адрес) else { return }
         NSWorkspace.shared.open(u)
+    }
+    @objc private func openResearchBoard() {
+        guard let url=CheckInConnection.board(адрес,research:true) else{return}
+        NSWorkspace.shared.open(url)
+    }
+    private func syncCheckIns(force:Bool=false) {
+        checkInSync.sync(address:адрес,store:reviewStore,force:force)
     }
 
     /// Борт, если задан адрес. Иначе календарь этого мака. Иначе встроенный образец.
     /// Панель всегда что-то показывает, пустого экрана не бывает.
     @objc private func забрать() {
+        syncCheckIns()
         guard !loading else { return }
         refreshCalendar()
         loading = true

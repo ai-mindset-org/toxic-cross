@@ -26,7 +26,7 @@ This is a custom personal-report interface. It is not a validated clinical instr
 
 Review the four questions, write another plausible perspective or one practical next step, and revisit it later. Original events and obligations remain intact. Keeping the original interpretation, accepting a difficult experience or choosing practical action are valid outcomes.
 
-The workspace offers an optional visual preview that multiplies the displayed balance by 0.25. **This arbitrary multiplier illustrates a thought experiment.** The four-arm construct, its weights, that multiplier and the old 26-second recoil have no established psychological calibration. v2 removes the automatic evening flip and forced recoil from the new workspace. Earlier legacy visualizations remain available as historical experiments; their animations do not establish effects on a person.
+The research workspace offers temporary previews for a block, a direction or all records. A visible adjustable multiplier starts at 0.25. The calculation holds the observed snapshot's normalization constant while changing the selected weights; changing every weight therefore moves the illustrative position toward the centre. Source records remain unchanged. **The multiplier illustrates a thought experiment.** The four-arm construct, its weights, that multiplier and the old 26-second recoil have no established psychological calibration. The current workspace has no automatic evening flip or forced recoil. The private server retains the historical instrument under `/classic`; its animations do not establish effects on a person.
 
 ## Evidence and limits
 

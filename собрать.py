@@ -3,6 +3,7 @@
 Положение блока на луче задаёт ВРЕМЯ (т_ч, часы от сейчас), размер — вес, толщина — охват.
 Запуск: python3 собрать.py [--без tg,linear,...] [--дата 2026-09-15]."""
 import json, os, sys, math, datetime as dt, pathlib, importlib, zoneinfo, argparse
+from provenance import adapter_evidence, manual_evidence, weight_evidence, receipt, atomic_json, atomic_text
 H = pathlib.Path(__file__).parent; sys.path.insert(0, str(H))
 # Пояс берётся из окружения, иначе местный: у инструмента нет своей географии.
 _tz = os.environ.get('KREST_TZ')
@@ -27,9 +28,8 @@ for имя in АДАПТЕРЫ:
         m = importlib.import_module(f'адаптеры.{имя}'); r = m.собрать(правила, сейчас)
     except Exception as ex:
         r = {"статус": "dead", "элементы": [], "события": [], "заметка": f"{type(ex).__name__}: {str(ex)[:60]}"}
-    статусы[имя] = {"статус": r['статус'], "заметка": r.get('заметка', ''),
-                    "когда": сейчас.isoformat(timespec='minutes'),
-                    "мс": int((dt.datetime.now() - t0).total_seconds() * 1000)}
+    статусы[имя] = receipt(r, сейчас, int((dt.datetime.now() - t0).total_seconds() * 1000))
+    for item in r['элементы']: adapter_evidence(item, имя, сейчас, r.get('capturedAt'))
     авто += r['элементы']; события_авто += r.get('события', []); факты += r.get('факты', [])
     if r.get('наложения'): наложения.update(r['наложения'])
 
@@ -70,7 +70,10 @@ def позиция(e):
 seen = {}
 for e in авто:
     e['вес_база'] = e['вес']
-    e['вес'] = round(e['вес'] * правила['источники'].get(e['источник'], {}).get('масштаб', 1) * затухание(e), 2)
+    scale = правила['источники'].get(e['источник'], {}).get('масштаб', 1)
+    decay = затухание(e)
+    weight_evidence(e, e['вес'], scale, decay)
+    e['вес'] = round(e['вес'] * scale * decay, 2)
     seen[e['id']] = e
 for л, blk in ручное['лучи'].items():
     for e in blk['элементы']:
@@ -78,6 +81,7 @@ for л, blk in ручное['лучи'].items():
         e['источник'] = e.get('источник') or 'ручное'; e['вес_база'] = e['вес']
         e.setdefault('факт', 'поставлено рукой: ' + e.get('источник', ''))
         e.setdefault('путь', 'источники/ручное.json')
+        manual_evidence(e); weight_evidence(e, e['вес'])
         seen[e['id']] = e
 for id_, н in наложения.items():                      # ручные правки поверх всего
     e = seen.get(id_)
@@ -85,7 +89,9 @@ for id_, н in наложения.items():                      # ручные �
     if н.get('луч'): e['луч'] = н['луч']
     if н.get('природа'): e['природа'] = н['природа']
     if н.get('т'): e['т'] = н['т']
-    if н.get('вес') is not None: e['вес_рука'] = float(н['вес']); e['вес'] = float(н['вес'])
+    if н.get('вес') is not None:
+        e['вес_рука'] = float(н['вес']); e['вес'] = float(н['вес'])
+        e['evidence']['weight']['override'] = float(н['вес'])
     if н.get('перевёрнут') is not None: e['перевёрнут'] = bool(н['перевёрнут'])
     e['правка'] = н.get('когда')
 # Что в прошлом держит, а что тянет, решает знак элемента: плюс держит.
@@ -126,8 +132,8 @@ out = {"дата": сейчас.strftime('%Y-%m-%d'), "собрано": сейч
        "переворот": правила['переворот'], "охваты": правила['охваты'],
        "баланс": {"x": max(-1,min(1,round((лучи['будущее']['сумма'] - лучи['прошлое']['сумма']) / всего, 2))),
                   "y": max(-1,min(1,round(-(лучи['обязательства']['сумма'] - лучи['ресурсы']['сумма']) / всего, 2)))}}
-json.dump(out, open(H / 'день.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-open(H / 'день.js', 'w', encoding='utf-8').write('window.КОНТЕКСТ=' + json.dumps(out, ensure_ascii=False) + ';')
+atomic_json(H / 'день.json', out)
+atomic_text(H / 'день.js', 'window.КОНТЕКСТ=' + json.dumps(out, ensure_ascii=False) + ';')
 (H / 'история').mkdir(exist_ok=True)
 json.dump(out, open(H / 'история' / f"{out['дата']}.json", 'w', encoding='utf-8'), ensure_ascii=False)
 print('день.json: блоков', sum(v['штук'] for v in лучи.values()),

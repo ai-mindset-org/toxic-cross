@@ -37,6 +37,8 @@ uninstall:
 test: bundle
 	@bash tests/проверка.sh
 	@bash tests/contract.sh
+	@bash tests/check-in-sync.sh
+	@bash tests/check-in-http.sh
 	@bash tests/theme-regression.sh
 
 dist: bundle
