@@ -4,7 +4,7 @@
   "собрано": "2026-10-16T10:00:00Z",
   "правила_версия": "fictional-v2",
   "баланс": {
-    "x": 0.12,
+    "x": 0.14,
     "y": -0.28
   },
   "день": [
@@ -60,7 +60,20 @@
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
           "охват": "ситуативное",
-          "т_ч": 12
+          "т_ч": 12,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 3,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         },
         {
           "id": "fictional-обязательства1",
@@ -70,7 +83,20 @@
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
           "охват": "ситуативное",
-          "т_ч": 12
+          "т_ч": 1.5,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 2.5,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         },
         {
           "id": "fictional-обязательства2",
@@ -79,8 +105,21 @@
           "источник": "manual",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
-          "охват": "ситуативное",
-          "т_ч": 12
+          "охват": "недельное",
+          "т_ч": 96,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 3,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         }
       ]
     },
@@ -96,7 +135,20 @@
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
           "охват": "ситуативное",
-          "т_ч": 12
+          "т_ч": 4,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 2,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         },
         {
           "id": "fictional-ресурсы1",
@@ -105,8 +157,21 @@
           "источник": "manual",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
-          "охват": "ситуативное",
-          "т_ч": 12
+          "охват": "недельное",
+          "т_ч": 168,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 2,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         },
         {
           "id": "fictional-ресурсы2",
@@ -116,7 +181,20 @@
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
           "охват": "ситуативное",
-          "т_ч": 12
+          "т_ч": 0.75,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 1.5,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         }
       ]
     },
@@ -131,8 +209,21 @@
           "источник": "manual",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
-          "охват": "ситуативное",
-          "т_ч": 12
+          "охват": "глобальное",
+          "т_ч": -720,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 2,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         },
         {
           "id": "fictional-прошлое1",
@@ -141,8 +232,21 @@
           "источник": "manual",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
-          "охват": "ситуативное",
-          "т_ч": 12
+          "охват": "недельное",
+          "т_ч": -48,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 1,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         }
       ]
     },
@@ -157,8 +261,21 @@
           "источник": "manual",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
-          "охват": "ситуативное",
-          "т_ч": 12
+          "охват": "недельное",
+          "т_ч": 168,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 2,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         },
         {
           "id": "fictional-будущее1",
@@ -167,8 +284,21 @@
           "источник": "manual",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
-          "охват": "ситуативное",
-          "т_ч": 12
+          "охват": "глобальное",
+          "т_ч": 2160,
+          "evidence": {
+            "kind": "manual",
+            "observedAt": null,
+            "weight": {
+              "base": 2.5,
+              "scale": 1,
+              "decay": 1,
+              "override": null
+            },
+            "time": {
+              "basis": "source-offset"
+            }
+          }
         }
       ]
     }

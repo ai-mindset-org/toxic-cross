@@ -28,6 +28,8 @@ async function mount({raw=fixture,demo=true,hash='',reviews=[]}={}){
  const before=JSON.stringify(normalized.records),target=new Set([normalized.records[0].key]);
  assert.equal(recordBalance(normalized.records,.5,target).sums['обязательства'],7);
  const observed=recordBalance(normalized.records),all=new Set(normalized.records.map(r=>r.key));
+ assert.equal(normalized.x,Number(observed.x.toFixed(2)),'fictional source dot matches its declared weights');
+ assert.equal(normalized.y,Number(observed.y.toFixed(2)),'fictional source dot matches its declared weights');
  const lighter=recordBalance(normalized.records,.25,all);
  assert(Math.abs(lighter.x-observed.x*.25)<1e-10,'preview keeps observed normalization');
  assert(Math.abs(lighter.y-observed.y*.25)<1e-10,'all lighter weights visibly approach the centre');
