@@ -40,9 +40,11 @@ async function mount({demo=true,hash='',raw=fixture,storage}={}){
  click('.record-row');click('[data-action=hide-record]');await tick();
  assert.equal(w.document.querySelectorAll('.record-row').length,count-1);assert(!w.document.querySelector('.research-detail'));assert.match(q('.undo-line').textContent,new RegExp(title));
  assert.equal(JSON.parse(w.localStorage.getItem('krest.demo.board.v3')).hidden.length,1);
+ assert.equal(JSON.parse(w.localStorage.getItem('krest.demo.board.v3')).changes[0].weightDelta,-3,'demo hide records its actual removed model weight');
  click('[data-tab=changes]');assert.match(q('.hidden-records').textContent,new RegExp(title));assert.match(q('.source-changes').textContent,/hidden/);
  const storage=w.localStorage.getItem('krest.demo.board.v3');
  click('[data-restore-key]');await tick();assert.match(q('.hidden-records').textContent,/No hidden blocks/);
+ assert.equal(JSON.parse(w.localStorage.getItem('krest.demo.board.v3')).changes[0].weightDelta,3,'demo restore records its returned model weight');
  click('[data-action=undo-visibility]');await tick();assert.equal(w.document.querySelectorAll('[data-restore-key]').length,1,'undo restore re-hides same identity');
  assert(calls.every(([url])=>url==='fixture.json'),'demo makes no private API calls during hide/restore');
  w.close();
