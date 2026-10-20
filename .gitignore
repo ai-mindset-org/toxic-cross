@@ -12,3 +12,4 @@ native/dist/
 источники/calendar-control.json
 источники/check-ins.local.json
 *.tmp
+.worktrees/

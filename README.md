@@ -1,8 +1,12 @@
 # Krest
 
+<!-- aim-public-links:start -->
+[Лабы AI Mindset](https://aimindset.org/?utm_source=website&utm_medium=article&utm_campaign=start&utm_content=github-toxic-cross#learning) · [База знаний](https://base.aimindset.org/?utm_source=website&utm_medium=article&utm_campaign=start&utm_content=github-toxic-cross)
+<!-- aim-public-links:end -->
+
 **See your day. Name its impact.** A local-first Mac menu-bar app and self-hostable workspace for calendar context, personal check-ins and a transparent four-direction model.
 
-[Try the fictional day](https://apps.aimindset.org/krest/demo.html) · [Product and download](https://apps.aimindset.org/krest/) · [Releases](https://github.com/ai-mindset-org/toxic-cross/releases) · [Method](docs/METHOD.md)
+[Try the fictional day](https://apps.aimindset.org/krest/demo.html?utm_source=website&utm_medium=article&utm_campaign=start&utm_content=github-toxic-cross) · [Product and download](https://apps.aimindset.org/krest/?utm_source=website&utm_medium=article&utm_campaign=start&utm_content=github-toxic-cross) · [Releases](https://github.com/ai-mindset-org/toxic-cross/releases) · [Method](docs/METHOD.md)
 
 Mac and workspace 3.1 are an **experimental developer preview**. The weights and four-arm construct are inspectable product choices. No health score or psychological diagnosis is inferred. Source calendar events remain read-only.
 
