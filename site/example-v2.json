@@ -2,7 +2,7 @@
   "fictional": true,
   "дата": "2026-10-16",
   "собрано": "2026-10-16T10:00:00Z",
-  "правила_версия": "fictional-v2",
+  "правила_версия": "fictional-v3",
   "баланс": {
     "x": 0.14,
     "y": -0.28
@@ -56,7 +56,7 @@
           "id": "fictional-обязательства0",
           "т": "Share the first draft",
           "вес": 3,
-          "источник": "manual",
+          "источник": "задачи",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
           "охват": "ситуативное",
@@ -131,7 +131,7 @@
           "id": "fictional-ресурсы0",
           "т": "An uninterrupted hour",
           "вес": 2,
-          "источник": "manual",
+          "источник": "Personal annotation",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
           "охват": "ситуативное",
@@ -206,7 +206,7 @@
           "id": "fictional-прошлое0",
           "т": "A useful project lesson",
           "вес": 2,
-          "источник": "manual",
+          "источник": "Reflection",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
           "охват": "глобальное",
@@ -258,7 +258,7 @@
           "id": "fictional-будущее0",
           "т": "One plausible good outcome",
           "вес": 2,
-          "источник": "manual",
+          "источник": "Planning annotation",
           "факт": "Fictional record with an explicitly chosen planning weight.",
           "флип": "What is one kind, practical next step?",
           "охват": "недельное",
@@ -302,5 +302,66 @@
         }
       ]
     }
+  },
+  "фокус": {
+    "статус": "live",
+    "source": "Fictional accepted plan",
+    "заметка": "Fictional example: confirmed choices are separate from source suggestions.",
+    "items": [
+      {
+        "id": "fictional-focus-draft",
+        "element_id": "fictional-обязательства0",
+        "title": "Finish and share the first draft",
+        "confirmed_by_user": true,
+        "source": "Fictional daily plan"
+      },
+      {
+        "id": "fictional-focus-walk",
+        "title": "Keep half an hour for a walk",
+        "confirmed_by_user": true,
+        "source": "Fictional daily plan"
+      }
+    ]
+  },
+  "факты": [
+    {
+      "t": "09:00",
+      "что": "Fictional morning reflection",
+      "мин": 5,
+      "дало": "Quiet time helped clarify a single next step.",
+      "разбор": "A personal observation in this example, with no causal conclusion.",
+      "источник": "Fictional observation"
+    }
+  ],
+  "boardState": {
+    "revision": 1,
+    "hidden": [],
+    "changes": [
+      {
+        "id": "fictional-source-edit",
+        "at": "2026-10-20T08:55:00Z",
+        "kind": "changed",
+        "cause": "source",
+        "source": "Fictional tasks",
+        "arm": "обязательства",
+        "record": {
+          "т": "Share the first draft",
+          "источник": "Fictional tasks"
+        },
+        "weightBefore": 2,
+        "weightAfter": 3,
+        "weightDelta": 1
+      },
+      {
+        "id": "fictional-source-import",
+        "at": "2026-10-20T08:50:00Z",
+        "kind": "added",
+        "cause": "source",
+        "source": "Fictional calendar",
+        "record": {
+          "title": "Four invented events loaded"
+        }
+      }
+    ]
   }
 }

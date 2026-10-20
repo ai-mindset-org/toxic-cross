@@ -49,7 +49,8 @@ Legacy calendar adapters can expose `cal-…` IDs instead. Those entries can syn
 | Skip/close | No journal write |
 | Research reframe preview | No persistent write; selected weights are illustrated with the visible multiplier |
 | Source refresh | Re-read existing board/local data; optional fresh calendar sharing may update the calendar lane |
-| Full collection | Rebuild context from that deployment's configured adapters and rules |
+| Full collection | Rebuild context from configured adapters and rules, retaining hidden source records |
+| Hide / restore block | Save board visibility and recompute active arm totals/dot; upstream source unchanged |
 | Legacy `/правка` or `/отклик` | Separate manual changes/reflection files consumed by a later collection |
 
 The reframe preview keeps the observed normalization constant. Its default ×0.25 multiplier makes the selected weights lighter and recomputes an illustrative dot. It does not save your interpretation or modify the source records. The optional check-in sentence is saved separately and does not feed the weight formula. See [method and evidence limits](METHOD.md).
@@ -61,3 +62,15 @@ Mac private files live under `~/Library/Application Support/Krest/`: `check-ins-
 The board keeps `источники/check-ins.local.json` separately from generated context/history. Public demo entries use `localStorage` key `krest.demo.checkins.v2` and never call journal endpoints. The native ratings client rejects known public demonstration hosts. The public website has no personal-board connection setting. [SECURITY.md](../SECURITY.md) contains the network/privacy boundary.
 
 Native **Open private board** opens the configured root; **Open research board** adds `#research`. The current workspace is served directly at the root. `/classic` explicitly opens the historical instrument; its old controls and animations have separate behavior. Use the current workspace for the method described here.
+
+## Source changes and reversible visibility (3.0)
+
+`board_state.py` retains the complete source snapshot separately from the visible projection in ignored `источники/board-state.local.json` (mode 0600, atomic writes and a shared directory lock). Each record receives a stable `boardKey` from its source identity. `GET /board-state` returns hidden-record receipts and the bounded change journal; the raw state file is not exposed as a static download. `POST /board/visibility` accepts `{key, hidden}` and returns the updated projected context and state. Unknown or ambiguous identities are not merged.
+
+Hide removes that record from the active four-arm calculation and moves the source-balance dot. Restore recomputes it from the retained current source. Calendar replacement and full collection both use the full snapshot, so refresh does not accidentally restore hidden blocks. A record removed upstream is marked absent; restoring visibility does not resurrect it. Check-ins and upstream tasks/calendar events are untouched. The browser offers Undo and a hidden-record list.
+
+Changes distinguish added/changed/removed source records from hide/restore actions and rule recalculation, with weight deltas when available. The log starts when this state store is first used; it is not a reconstructed lifetime history. Repeated identical source captures do not add duplicate entries. A maximum of 600 changes is retained.
+
+The public demo uses `krest.demo.board.v3` browser storage for visibility and changes, and never sends these operations to a private API. Only source-backed entries confirmed by the user (`confirmed_by_user: true`) appear as the accepted plan. Missing/expired focus inputs remain explicit. Unaccepted obligations are suggestions.
+
+Mac 3.0 opens Overview, original Cross, day Timeline and Changes through the configured private address. Its existing one-minute source polling reads the same projected totals; ratings continue through the separate occurrence journal. Reminder preferences remain controlled in Mac Settings; the browser does not request notification permission.

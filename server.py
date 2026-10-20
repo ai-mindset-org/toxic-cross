@@ -6,13 +6,14 @@ GET  /отклик?...           страница ответа на вопрос
 POST /правка               {id, луч?, вес?, перевёрнут?, текст?}  → источники/правки.json
 POST /отклик               {событие, луч, текст, вес}             → источники/отклики.json
 """
-import http.server, socketserver, os, sys, json, pathlib, datetime, urllib.parse, threading, re, importlib, math, hashlib
+import http.server, socketserver, os, sys, json, pathlib, datetime, urllib.parse, threading, re, importlib, math, hashlib, posixpath
 
 _here=pathlib.Path(__file__).resolve().parent
 КОРЕНЬ = pathlib.Path(os.environ.get('KREST_ROOT', _here.parent if _here.name=='сервер' else _here)).resolve()
 _module_root = _here.parent if _here.name == 'сервер' else _here
 if str(_module_root) not in sys.path: sys.path.insert(0, str(_module_root))
-from provenance import adapter_evidence, weight_evidence, receipt, atomic_json, item_decay
+from provenance import adapter_evidence, weight_evidence, receipt, atomic_json, item_decay, calendar_adapter, collection_timezone, read_overrides, apply_override, prepare_weight, enrich_item
+from board_state import BoardStore, StateUnreadable, read_board, context_path
 ПОРТ = int(os.environ.get('KREST_PORT', '8452'))
 АДРЕС = os.environ.get('KREST_BIND', '127.0.0.1')
 ИСТОЧНИКИ = КОРЕНЬ / 'источники'
@@ -118,13 +119,23 @@ class Рук(http.server.SimpleHTTPRequestHandler):
         return False
 
     def do_HEAD(self):
+        path = posixpath.normpath(urllib.parse.unquote(urllib.parse.urlsplit(self.path).path))
+        if path in ('/контекст.json', '/день.json', '/board-state', '/источники/board-state.local.json'): return self.do_GET()
         if self.workspace_route(urllib.parse.unquote(urllib.parse.urlsplit(self.path).path)): return
         super().do_HEAD()
 
     def do_GET(self):
         путь = urllib.parse.urlparse(self.path)
         if self.workspace_route(urllib.parse.unquote(путь.path)): return
-        if urllib.parse.unquote(путь.path) == '/контекст.json' and not (КОРЕНЬ/'контекст.json').exists():self.path='/день.json'
+        board_path = posixpath.normpath(urllib.parse.unquote(путь.path))
+        if board_path == '/источники/board-state.local.json': return self.ответ(404, {'error': 'Use the board-state API'})
+        if board_path in ('/контекст.json', '/день.json', '/board-state'):
+            try:
+                with замок:
+                    value = read_board(КОРЕНЬ, state_only=board_path == '/board-state')
+                return self.ответ(200, value)
+            except (ValueError, KeyError, OSError):
+                return self.ответ(503, {'error': 'Board context/state unreadable; original preserved'})
         if путь.path == '/check-ins':
             try:
                 with замок: rows = stored_checkins()
@@ -153,16 +164,25 @@ class Рук(http.server.SimpleHTTPRequestHandler):
         except Exception: return self.ответ(400, {"ошибка": "не json"})
         try:
             with замок:
+                if путь == '/board/visibility': return self.ответ(200, self.board_visibility(тело))
                 if путь == '/calendar-snapshot': return self.ответ(200, self.calendar_snapshot(тело))
                 if путь == '/check-in': return self.ответ(200, self.check_in(тело))
                 if путь == '/check-ins/sync': return self.ответ(200, self.sync_checkins(тело))
                 if путь == '/правка': return self.ответ(200, self.правка(тело))
                 if путь == '/отклик': return self.ответ(200, self.отклик(тело))
+        except StateUnreadable:
+            return self.ответ(503, {'error': 'Board state unreadable; original preserved'})
         except (ValueError,TypeError,KeyError):
             return self.ответ(400,{"error":"Invalid input"})
         except Exception as ex:
             return self.ответ(500, {"ошибка": f"{type(ex).__name__}: {ex}"})
         self.ответ(404, {"ошибка": "нет такого"})
+
+    def board_visibility(self, body):
+        if not isinstance(body, dict) or set(body) != {'key', 'hidden'}: raise ValueError('Invalid visibility request')
+        store = BoardStore(КОРЕНЬ)
+        with store.locked():
+            return store.visibility(json.loads(context_path(КОРЕНЬ).read_text()), body['key'], body['hidden'])
 
     def calendar_snapshot(self, body):
         if body.get('schemaVersion') != 1 or body.get('source') != 'krest-calendar-bridge': raise ValueError()
@@ -184,23 +204,30 @@ class Рук(http.server.SimpleHTTPRequestHandler):
         return {"ok":True,"events":len(events),"captured":clean['fetchedAt']}
 
     def refresh_calendar(self):
+        store = BoardStore(КОРЕНЬ)
+        with store.locked():
+            return self._refresh_calendar(store)
+
+    def _refresh_calendar(self, store):
         """Update only the calendar lane. No model, connector, message or scheduler."""
         context=КОРЕНЬ/('контекст.json' if (КОРЕНЬ/'контекст.json').exists() else 'день.json')
         if not context.exists():return
         sys.path.insert(0,str(КОРЕНЬ)) if str(КОРЕНЬ) not in sys.path else None
-        module='адаптеры.calendar_bridge' if (КОРЕНЬ/'адаптеры/calendar_bridge.py').exists() else 'адаптеры.календарь'
-        rules=json.loads((КОРЕНЬ/'правила.json').read_text());data=json.loads(context.read_text())
-        now=datetime.datetime.now().astimezone();result=importlib.import_module(module).собрать(rules,now)
+        adapter=calendar_adapter(КОРЕНЬ);module='адаптеры.'+adapter
+        rules=json.loads((КОРЕНЬ/'правила.json').read_text());data=store.source(json.loads(context.read_text()))
+        now=datetime.datetime.now(collection_timezone(КОРЕНЬ));result=importlib.import_module(module).собрать(rules,now)
+        overrides=read_overrides(КОРЕНЬ)
+        focus=importlib.import_module('адаптеры.фокус') if 'фокус' in data else None
         for arm in data['лучи'].values():
             arm['элементы']=[e for e in arm['элементы'] if e.get('источник') not in ('календарь','звонки-живые') and e.get('id')!='r-free' and e.get('id')!='calendar-free']
         for item in result['элементы']:
-            item=dict(item);item['вес_база']=item['вес']
-            scale=rules['источники'].get(item['источник'],{}).get('масштаб',1);decay=item_decay(item,rules,now)
-            adapter_evidence(item,'календарь',now,result.get('capturedAt'))
-            weight_evidence(item,item['вес'],scale,decay)
-            item['вес']=round(item['вес']*scale*decay,2)
-            item.setdefault('природа','держит' if item['луч']=='ресурсы' or item.get('знак')=='+' else 'тянет')
+            item=dict(item)
+            prepare_weight(item,rules,now,adapter,result.get('capturedAt'))
+            apply_override(item,overrides.get(item['id']))
+            if focus: item['исключён_сегодня']=focus.исключён(item,data['фокус'].get('withdrawn',[]))
+            enrich_item(item,rules,now)
             data['лучи'][item['луч']]['элементы'].append(item)
+        for arm in data['лучи'].values():arm['элементы'].sort(key=lambda item:(item.get('поз',0),-abs(item['вес'])))
         for arm in data['лучи'].values():arm['сумма']=round(sum(e['вес'] for e in arm['элементы']),1);arm['штук']=len(arm['элементы'])
         total=max(1,sum(abs(arm['сумма']) for arm in data['лучи'].values())/2)
         sums={k:v['сумма'] for k,v in data['лучи'].items()}
@@ -208,9 +235,9 @@ class Рук(http.server.SimpleHTTPRequestHandler):
         data['день']=result['события'];data.setdefault('полная_сборка',data.get('собрано'))
         data['собрано']=now.isoformat();data['дата']=now.date().isoformat()
         data['lastPartialUpdate']={'source':'календарь','checkedAt':now.isoformat()}
-        data['источники']['календарь']=receipt(result,now,0)
-        data['правила_версия']='2026-10-19 v5'
-        atomic_json(context,data)
+        data['источники'][adapter]=receipt(result,now,0)
+        state=store.ingest(data)
+        atomic_json(context,store.projection(state))
 
     def check_in(self, body):
         clean = clean_checkin(body, recorded=datetime.datetime.now(datetime.timezone.utc))
@@ -256,7 +283,8 @@ class Рук(http.server.SimpleHTTPRequestHandler):
     def ответ(self, код, тело):
         b = json.dumps(тело, ensure_ascii=False).encode()
         self.send_response(код); self.send_header('Content-Type', 'application/json; charset=utf-8')
-        self.send_header('Content-Length', str(len(b))); self.end_headers(); self.wfile.write(b)
+        self.send_header('Content-Length', str(len(b))); self.end_headers()
+        if self.command != 'HEAD': self.wfile.write(b)
 
     def log_message(self, f, *a):
         s = f % a

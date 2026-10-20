@@ -47,9 +47,11 @@ enum CheckInConnection {
     static func enabled(address:String?, defaults:UserDefaults = .standard) -> Bool {
         root(address) != nil && (defaults.object(forKey:enabledKey) == nil || defaults.bool(forKey:enabledKey))
     }
-    static func board(_ address:String?, research:Bool=false) -> URL? {
+    static func board(_ address:String?, research:Bool=false, view:String?=nil) -> URL? {
         guard let address,let endpoint=Свежесть.endpoint(address),var c=URLComponents(url:endpoint.deletingLastPathComponent(),resolvingAgainstBaseURL:false) else{return nil}
-        if research {c.fragment="research"};return c.url
+        if research {c.fragment="research"}
+        else if let view,["today","timeline","changes","sources","method"].contains(view) {c.fragment=view}
+        return c.url
     }
 }
 

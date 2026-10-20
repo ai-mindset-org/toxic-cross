@@ -3,11 +3,11 @@
 Положение блока на луче задаёт ВРЕМЯ (т_ч, часы от сейчас), размер — вес, толщина — охват.
 Запуск: python3 собрать.py [--без tg,linear,...] [--дата 2026-09-15]."""
 import json, os, sys, math, datetime as dt, pathlib, importlib, zoneinfo, argparse
-from provenance import adapter_evidence, manual_evidence, weight_evidence, receipt, atomic_json, atomic_text
+from provenance import adapter_evidence, manual_evidence, weight_evidence, receipt, atomic_json, atomic_text, calendar_adapter, collection_timezone, read_overrides, apply_override, prepare_weight, enrich_item
+from board_state import board_key, write_board
 H = pathlib.Path(__file__).parent; sys.path.insert(0, str(H))
 # Пояс берётся из окружения, иначе местный: у инструмента нет своей географии.
-_tz = os.environ.get('KREST_TZ')
-TZ = zoneinfo.ZoneInfo(_tz) if _tz else dt.datetime.now().astimezone().tzinfo
+TZ = collection_timezone(H)
 ap = argparse.ArgumentParser(); ap.add_argument('--без', default=''); ap.add_argument('--дата', default=None)
 a = ap.parse_args()
 сейчас = dt.datetime.now(TZ) if not a.дата else dt.datetime.fromisoformat(a.дата).replace(tzinfo=TZ, hour=23, minute=0)
@@ -18,7 +18,7 @@ if not _ручное.exists():
     _ручное = H / 'источники/ручное.json'
 ручное = json.load(open(_ручное, encoding='utf-8'))
 выкл = set(x for x in a.без.split(',') if x)
-АДАПТЕРЫ = ['calendar_bridge' if (H/'источники/calendar-control.json').exists() else 'календарь_ics', 'задачи_json', 'отклики']
+АДАПТЕРЫ = [calendar_adapter(H), 'задачи_json', 'отклики']
 статусы = {}; авто = []; события_авто = []; факты = []; наложения = {}
 for имя in АДАПТЕРЫ:
     t0 = dt.datetime.now()
@@ -35,46 +35,11 @@ for имя in АДАПТЕРЫ:
 
 ГОР = правила['время']['горизонт_по_умолчанию_часов']
 
-def затухание(e):
-    охв = правила['охваты'].get(e.get('охват', 'недельное'), правила['охваты']['недельное'])
-    hl = охв['полураспад_дней']; когда = e.get('когда')
-    if e.get('т_ч') is not None and not когда:
-        возраст = max(0.0, abs(e['т_ч']) / 24) if e['луч'] in ('прошлое',) else 0.0
-        return 0.5 ** (возраст / hl) if возраст else 1.0
-    if not когда: return 1.0
-    try:
-        t = dt.datetime.fromisoformat(str(когда).replace('Z', '+00:00'))
-        if t.tzinfo is None: t = t.replace(tzinfo=TZ)
-    except Exception:
-        return 1.0
-    возраст = max(0.0, (сейчас - t).total_seconds() / 86400)
-    return 0.5 ** (возраст / hl)
-
-def позиция(e):
-    """0 = центр (сейчас или просрочено), 1 = край луча."""
-    if e.get('срочно'): return 0.0
-    ч = e.get('т_ч')
-    if ч is None:
-        когда = e.get('когда')
-        if когда:
-            try:
-                t = dt.datetime.fromisoformat(str(когда).replace('Z', '+00:00'))
-                if t.tzinfo is None: t = t.replace(tzinfo=TZ)
-                ч = abs((сейчас - t).total_seconds() / 3600)
-            except Exception: ч = None
-    if ч is None: ч = {'ситуативное': 12, 'недельное': 24 * 5, 'глобальное': 24 * 40}[e.get('охват', 'недельное')]
-    ч = abs(ч); гор = ГОР.get(e['луч'], 720)
-    return min(1.0, math.log10(1 + ч) / math.log10(1 + гор))
-
 лучи = {л: {"подпись": v['подпись'], "горизонт_ч": ГОР.get(л, 720), "элементы": []} for л, v in правила['лучи'].items()}
 seen = {}
 for e in авто:
-    e['вес_база'] = e['вес']
-    scale = правила['источники'].get(e['источник'], {}).get('масштаб', 1)
-    decay = затухание(e)
-    weight_evidence(e, e['вес'], scale, decay)
-    e['вес'] = round(e['вес'] * scale * decay, 2)
-    seen[e['id']] = e
+    prepare_weight(e, правила, сейчас)
+    seen[board_key(e)] = e
 for л, blk in ручное['лучи'].items():
     for e in blk['элементы']:
         e = dict(e); e.setdefault('охват', 'глобальное'); e['луч'] = л
@@ -82,39 +47,12 @@ for л, blk in ручное['лучи'].items():
         e.setdefault('факт', 'поставлено рукой: ' + e.get('источник', ''))
         e.setdefault('путь', 'источники/ручное.json')
         manual_evidence(e); weight_evidence(e, e['вес'])
-        seen[e['id']] = e
-for id_, н in наложения.items():                      # ручные правки поверх всего
-    e = seen.get(id_)
-    if not e: continue
-    if н.get('луч'): e['луч'] = н['луч']
-    if н.get('природа'): e['природа'] = н['природа']
-    if н.get('т'): e['т'] = н['т']
-    if н.get('вес') is not None:
-        e['вес_рука'] = float(н['вес']); e['вес'] = float(н['вес'])
-        e['evidence']['weight']['override'] = float(н['вес'])
-    if н.get('перевёрнут') is not None: e['перевёрнут'] = bool(н['перевёрнут'])
-    e['правка'] = н.get('когда')
-# Что в прошлом держит, а что тянет, решает знак элемента: плюс держит.
+        seen[board_key(e)] = e
+наложения.update(read_overrides(H))
 for e in seen.values():
-    e.setdefault('охват', 'недельное')
-    if not e.get('природа'):                      # тянет вверх или держит внизу
-        if e['луч'] == 'ресурсы':
-            e['природа'] = 'тянет' if e['вес'] < 0 else 'держит'
-        elif e['луч'] == 'прошлое':
-            e['природа'] = 'держит' if e.get('знак') == '+' else 'тянет'
-        else:
-            e['природа'] = 'держит' if e.get('знак') == '+' else 'тянет'
-    e['толщина'] = правила['охваты'][e['охват']]['толщина']
-    e['поз'] = round(позиция(e), 4)
-    ч = e.get('т_ч')
-    if ч is None and e.get('когда'):
-        try:
-            _t = dt.datetime.fromisoformat(str(e['когда']).replace('Z', '+00:00'))
-            if _t.tzinfo is None: _t = _t.replace(tzinfo=TZ)
-            ч = abs((сейчас - _t).total_seconds() / 3600)
-        except Exception: ч = None
-    if ч is None: ч = {'ситуативное': 12, 'недельное': 24 * 5, 'глобальное': 24 * 40}[e['охват']]
-    e['ч'] = 0 if e.get('срочно') else round(abs(ч), 2)
+    apply_override(e, наложения.get(e['id']))
+for e in seen.values():
+    enrich_item(e, правила, сейчас)
     лучи[e['луч']]['элементы'].append(e)
 for л in лучи:
     лучи[л]['элементы'].sort(key=lambda e: (e['поз'], -abs(e['вес'])))
@@ -132,8 +70,7 @@ out = {"дата": сейчас.strftime('%Y-%m-%d'), "собрано": сейч
        "переворот": правила['переворот'], "охваты": правила['охваты'],
        "баланс": {"x": max(-1,min(1,round((лучи['будущее']['сумма'] - лучи['прошлое']['сумма']) / всего, 2))),
                   "y": max(-1,min(1,round(-(лучи['обязательства']['сумма'] - лучи['ресурсы']['сумма']) / всего, 2)))}}
-atomic_json(H / 'день.json', out)
-atomic_text(H / 'день.js', 'window.КОНТЕКСТ=' + json.dumps(out, ensure_ascii=False) + ';')
+out = write_board(H, out, H / 'день.json', H / 'день.js')
 (H / 'история').mkdir(exist_ok=True)
 json.dump(out, open(H / 'история' / f"{out['дата']}.json", 'w', encoding='utf-8'), ensure_ascii=False)
 print('день.json: блоков', sum(v['штук'] for v in лучи.values()),

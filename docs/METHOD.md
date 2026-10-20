@@ -2,6 +2,12 @@
 
 Krest is an experimental day-planning and reflection instrument. It combines recorded context with deliberate personal input.
 
+## Origin and working sequence
+
+The original four-direction practice asks a person to revisit commitments, evidence from past experience, available resources and plausible future scenarios together. The current product preserves those questions and offers an Overview, a Cross, explicit timelines and a source-change journal. The [2026-10-20 research update](RESEARCH-2026-10-20.md) compares the practice with cognitive formulation, demands/resources theory, implementation intentions and personal informatics.
+
+Begin with the accepted plan and scheduled day. Inspect the source and time basis of a demand. Consider an available resource and concrete next step. Revisit the recorded result or add a voluntary check-in. The dot describes source arithmetic; a check-in records an experience at its own time.
+
 ## Four directions
 
 - **Obligations:** a commitment, deadline or scheduled demand. Ask what is yours and what can be completed or renegotiated.
@@ -11,7 +17,7 @@ Krest is an experimental day-planning and reflection instrument. It combines rec
 
 Source adapters create versioned records with identity, origin, time and a declared weight. Calendar load is a planning heuristic. Native calendar mode assigns one point to a timed event, 1.5 above 90 minutes, and transfers scheduled weight from remaining to elapsed as time passes. Free-time estimation merges overlapping busy intervals inside the remaining local 09:00–19:00 window. All-day and declined entries are excluded. Calendar Control source selection is respected. A missing, stale or incomplete calendar cannot establish free time.
 
-The private board can use additional source scales. Inspect its rules and source receipts before comparing it with the local calendar estimate. Counts are records, rather than verified promises per call. Public example data is fictional.
+The private board can use additional source scales. Inspect its rules and source receipts before comparing it with the local calendar estimate. Counts describe source records. Per-call commitment counts require a separately verified source. Public example data is fictional.
 
 For a board snapshot, each arm sums its declared record weights. With `S = max(1, sum(abs(arm total)) / 2)`, the dot uses `x = (Future − Past) / S` and `y = (Resources − Obligations) / S`, clipped to −1…+1. A record's receipt separates base weight, source scale, time decay and any manual override. A scope-based time estimate is labelled as an estimate. These choices explain the picture; they do not measure the intensity of an experience.
 

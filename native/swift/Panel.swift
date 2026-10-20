@@ -118,6 +118,8 @@ final class ПанельView: NSView {
     var toggleReviewSync:((Bool)->Void)?
     var reviewSyncEnabled=false
     var openResearch:(()->Void)?
+    var openTimeline:(()->Void)?
+    var openChanges:(()->Void)?
     var saveReview:((CalendarMoment,Int,Int,String)->Bool)?
     var toggleReminders:((Bool)->Void)?
     var saveBoard:((String)->Bool)?
@@ -275,7 +277,11 @@ final class ПанельView: NSView {
         add(label(date.string(from:now)+" · "+TimeZone.current.abbreviation()!,size:18))
         add(label(reviewSyncStatus,size:10,muted:true))
         if reviewSyncEnabled {add(button("sync check-ins",width:200,tip:"exchange personal ratings with the configured private board; calendar sources are unchanged"){[weak self] in self?.syncReviews?()})}
-        if !boardAddress.isEmpty {add(button("open research board",width:240,tip:"open the wide research board · #research"){[weak self] in self?.openResearch?()})}
+        if !boardAddress.isEmpty {
+            add(row([button("original cross",width:190,tip:"inspect the four-direction source model · #research"){[weak self] in self?.openResearch?()},button("day timeline",width:190,tip:"open today's schedule and longer commitments · #timeline"){[weak self] in self?.openTimeline?()}]))
+            add(button("incoming source changes",width:260,tip:"inspect added, changed and hidden board records · #changes"){[weak self] in self?.openChanges?()})
+        }
+        add(label(UserDefaults.standard.bool(forKey:EventNotices.enabledKey) ? "Check-in reminders: on · manage in Settings" : "Check-in reminders: off · check-in buttons stay available",size:10,muted:true))
         add(row([button("open calendar",width:164,tip:"open Calendar Control, or macOS Calendar when it is not installed"){[weak self] in self?.openCalendar?()},button("refresh sources",width:164,tip:"read the calendar snapshot and the board again; Google is not asked"){[weak self] in self?.обновить?()}]))
         if let frame=frameData {
             add(label(frame.receipt(at:now),size:10,muted:true))

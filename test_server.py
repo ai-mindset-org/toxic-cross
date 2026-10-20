@@ -95,6 +95,7 @@ class PrivateAPITest(unittest.TestCase):
         private=self.folder/'private';scripts=private/'сервер';scripts.mkdir(parents=True)
         shutil.copyfile(server.__file__,scripts/'статика.py')
         shutil.copyfile(Path(server.__file__).parent/'provenance.py',private/'provenance.py')
+        shutil.copyfile(Path(server.__file__).parent/'board_state.py',private/'board_state.py')
         result=subprocess.run([sys.executable,'-c','import runpy,sys; runpy.run_path(sys.argv[1],run_name="private_layout")',str(scripts/'статика.py')],cwd=self.folder,capture_output=True,text=True)
         self.assertEqual(result.returncode,0,result.stderr)
     def test_private_checkin_validation_and_replace(self):

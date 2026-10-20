@@ -1,3 +1,7 @@
+Krest 3.0.0 (build 12) – 2026-10-20 · experimental developer preview
+
+Day overview, accepted-plan receipt, original Cross, three timeline horizons, source-colour/monochrome and explicit light/dark controls. Hover or focus a block for source/type/weight; inspect the balance dot and its calculation. Reversibly hide/restore source blocks and inspect incoming source changes. Private board visibility changes update the shared source model; public demo changes stay in the browser. Mac menu and Day open Overview, Cross, Timeline and Changes. Check-ins remain a separate shared journal. Existing reminder settings are unchanged. Source history begins with the new state store. Apple silicon, macOS 13+, ad-hoc signed and not notarized.
+
 Krest workspace 2.2.0 – 2026-10-19
 
 Responsive research field, focused directions with record/time views, on-demand block detail drawer and compact optional filters. Private index and server entry aliases open the current workspace directly. Check-ins update the shared ratings journal; source weights follow their separate collection flow. The Mac download remains 2.1.0 (build 11).

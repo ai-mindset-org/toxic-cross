@@ -6,12 +6,12 @@ const fixture=JSON.parse(fs.readFileSync('site/example-v2.json','utf8'));
 const script=fs.readFileSync('site/assets/workspace-v2.js','utf8');
 const stylesheet=fs.readFileSync('site/assets/workspace-v2.css','utf8');
 const tick=()=>new Promise(resolve=>setTimeout(resolve,15));
-async function mount({raw=fixture,demo=true,hash='',reviews=[]}={}){
+async function mount({raw=fixture,demo=true,hash='#research',reviews=[]}={}){
  const dom=new JSDOM(`<style>${stylesheet}</style><div id="krest-workspace" data-mode="${demo?'demo':'private'}" data-context="fixture.json"></div>`,{url:'http://localhost/'+hash,runScripts:'outside-only'});
  const w=dom.window,calls=[];
  w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};
  w.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');};
- w.fetch=async(url,options)=>{calls.push([url,options]);return {ok:true,json:async()=>url==='/check-ins'?reviews:url==='/check-in'?{ok:true,entry:{...JSON.parse(options.body),feeling:2,recorded:'2026-10-19T12:34:56Z'},revision:'canonical'}:raw};};
+ w.fetch=async(url,options)=>{calls.push([url,options]);return {ok:true,json:async()=>url==='/board-state'?{hidden:[],changes:[],revision:0}:url==='/check-ins'?reviews:url==='/check-in'?{ok:true,entry:{...JSON.parse(options.body),feeling:2,recorded:'2026-10-19T12:34:56Z'},revision:'canonical'}:raw};};
  w.eval(script);await tick();
  const q=s=>{const el=w.document.querySelector(s);assert(el,s+' exists');return el;};
  const click=s=>q(s).dispatchEvent(new w.MouseEvent('click',{bubbles:true}));

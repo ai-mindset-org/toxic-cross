@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.0 · build 12 · 2026-10-20
+
+- Overview joins actual calendar phases, the available confirmed plan, draft context and optional event check-ins.
+- Original Cross gains useful block/dot hover details, source colours/monochrome, focused directions and a full-field view.
+- Day/Week/Longer timelines distinguish observed dates, estimates and unknown time.
+- Private source change journal and reversible block visibility share the projected balance with Mac.
+- Mac menu and Day link directly to Overview, original Cross, Timeline and Changes. Notification preferences are unchanged.
+- Method ledger revisits the original four-question practice and primary research; no clinical validity or automatic emotional effect is claimed.
+
+
 ## Workspace 2.2.0 – 2026-10-19
 
 - Research fits smaller screens without a permanent detail column. A block opens in a side drawer; Escape restores focus to its control.

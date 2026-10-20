@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {normalize,phase,esc}=require('./движок/workspace-v2.js');
+const {normalize,phase,esc}=require('./site/assets/workspace-v2.js');
 const now=new Date('2026-10-16T12:00:00Z');
 assert.equal(phase({start:'2026-10-16T11:00Z',end:'2026-10-16T12:00Z'},now),'earlier');
 assert.equal(phase({start:'2026-10-16T12:00Z',end:'2026-10-16T13:00Z'},now),'now');

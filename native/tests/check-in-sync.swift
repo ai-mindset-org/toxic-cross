@@ -13,6 +13,9 @@ assert(!CheckInConnection.enabled(address:nil,defaults:defaults))
 assert(!CheckInConnection.enabled(address:"https://apps.aimindset.org/krest/",defaults:defaults))
 assert(!CheckInConnection.enabled(address:"https://sample.github.io/krest/",defaults:defaults))
 assert(CheckInConnection.board(address,research:true)?.absoluteString == "https://private.example.test/board/#research")
+assert(CheckInConnection.board(address,view:"timeline")?.absoluteString == "https://private.example.test/board/#timeline")
+assert(CheckInConnection.board(address,view:"changes")?.absoluteString == "https://private.example.test/board/#changes")
+assert(CheckInConnection.board(address,view:"https://foreign.example")?.absoluteString == "https://private.example.test/board/")
 let now=Date().addingTimeInterval(-30)
 let event=CalendarMoment(id:"calendar-id|100.0|200.0",title:"PRIVATE TITLE",start:now.addingTimeInterval(-3600),end:now,allDay:false,declined:false,url:URL(string:"https://private.test/secret"),source:"fictional test")
 let store=EventReviewStore(url:temp.appendingPathComponent("records.json"))
@@ -95,8 +98,14 @@ panel.checkInReceipt(sync.status,enabled:true)
 for mode in ["day","history","settings","now"] {panel.select(mode);assert(panel.frame.size==NSSize(width:520,height:690))}
 func descendants(_ view:NSView)->[NSView] {view.subviews.flatMap{[$0]+descendants($0)}}
 panel.select("day")
-var researchOpened=false
+var researchOpened=false,timelineOpened=false,changesOpened=false
 panel.openResearch={researchOpened=true}
-descendants(panel).compactMap{$0 as? NSButton}.first{$0.accessibilityLabel()=="open research board"}!.performClick(nil)
-assert(researchOpened)
-print("check-in sync: offline persistence; browser import; newest conflicts/in-flight edits; durable per-board receipts; invalid records; opt-out fencing; public demo exclusion; research navigation; 520×690 passed")
+panel.openTimeline={timelineOpened=true}
+panel.openChanges={changesOpened=true}
+let dayActions=descendants(panel).compactMap{$0 as? NSButton}
+for title in ["original cross","day timeline","incoming source changes"] {
+    guard let button=dayActions.first(where:{$0.accessibilityLabel()==title}) else {fatalError("Missing Day action: \(title)")}
+    button.performClick(nil)
+}
+assert(researchOpened && timelineOpened && changesOpened,"Day routes invoke the original cross, timeline and incoming changes callbacks")
+print("check-in sync: offline persistence; browser import; newest conflicts/in-flight edits; durable per-board receipts; invalid records; opt-out fencing; public demo exclusion; original cross/day timeline/incoming changes navigation; 520×690 passed")
