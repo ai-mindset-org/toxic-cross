@@ -30,6 +30,7 @@ async function mount({demo=true,hash='',raw=fixture,storage}={}){
  assert.equal(w.document.querySelectorAll('[data-event]').length,4,'overview retains actual fictional calendar phases');
  assert.match(q('.overview-actions').textContent,/No confirmed plan available/);assert.match(q('.overview-actions').textContent,/draft/);
  assert.equal(w.document.querySelectorAll('[role=tab]').length,6);
+ click('[data-tab=timeline]');click('[data-timeline-filter=upcoming]');assert(!q('.timeline-days').textContent.includes('Fictional design review'),'Upcoming excludes the ongoing call');assert(q('.timeline-days').textContent.includes('Walk and a little space'));
  click('[data-tab=research]');assert.equal(q('[data-tab=research]').textContent.trim(),'Cross 2');
  q('.research-block').dispatchEvent(new w.MouseEvent('mouseover',{bubbles:true}));assert(!q('#board-hover').hidden);assert.match(q('#board-hover').textContent,/source-offset|source offset/);assert.match(q('#board-hover').textContent,/Weight/);
  q('[data-dot]').focus();assert.match(q('#board-hover').textContent,/Future − Past/);assert.match(q('#board-hover').textContent,/delta unknown/);
