@@ -212,6 +212,11 @@ class BoardStore:
         for group in context['лучи'].values():
             group['элементы'] = [item for item in group['элементы'] if item['boardKey'] not in state['hidden']]
         rebalance(context)
+        if isinstance(context.get('promiseRegistry'), dict):
+            from promise_projection import annotate_influence
+            active = [item for group in context['лучи'].values() for item in group['элементы']]
+            hidden = [value['record'] for value in state['hidden'].values()]
+            context['promiseRegistry'] = annotate_influence(context['promiseRegistry'], active, hidden)
         context['boardState'] = {'projection': True, 'revision': state['revision'],
                                   'hiddenCount': len(state['hidden']), 'updatedAt': state['updatedAt'],
                                   'sourceCollectedAt': context.get('собрано'), 'changeLimit': MAX_CHANGES}

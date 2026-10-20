@@ -348,6 +348,7 @@ final class Delegate: NSObject, NSApplicationDelegate {
         вид.openResearch = { [weak self] in self?.openResearchBoard() }
         вид.openTimeline = { [weak self] in self?.openTimelineBoard() }
         вид.openChanges = { [weak self] in self?.openChangesBoard() }
+        вид.openSources = { [weak self] in self?.openSourcesBoard() }
         вид.обновить = { [weak self] in self?.забрать() }
         вид.syncHistory = { [weak self] in self?.refreshHistory(force:true) }
         вид.close = { [weak self] in self?.surface.close(reason:.closeButton) }
@@ -468,6 +469,7 @@ final class Delegate: NSObject, NSApplicationDelegate {
         m.addItem(withTitle:"Open original cross…",action:#selector(openResearchBoard),keyEquivalent:"").target=self
         m.addItem(withTitle:"Open day timeline…",action:#selector(openTimelineBoard),keyEquivalent:"").target=self
         m.addItem(withTitle:"Incoming source changes…",action:#selector(openChangesBoard),keyEquivalent:"").target=self
+        m.addItem(withTitle:"Promise registry and sources…",action:#selector(openSourcesBoard),keyEquivalent:"").target=self
         m.addItem(withTitle:"Balance history…",action:#selector(showHistory),keyEquivalent:"3").target=self
         m.addItem(withTitle:"Settings…",action:#selector(showSettings),keyEquivalent:",").target=self
         m.addItem(.separator())
@@ -501,6 +503,10 @@ final class Delegate: NSObject, NSApplicationDelegate {
     }
     @objc private func openChangesBoard() {
         guard let url=CheckInConnection.board(адрес,view:"changes") else{return}
+        NSWorkspace.shared.open(url)
+    }
+    @objc private func openSourcesBoard() {
+        guard let url=CheckInConnection.board(адрес,view:"sources") else{return}
         NSWorkspace.shared.open(url)
     }
     private func syncCheckIns(force:Bool=false) {

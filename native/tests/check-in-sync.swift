@@ -98,14 +98,15 @@ panel.checkInReceipt(sync.status,enabled:true)
 for mode in ["day","history","settings","now"] {panel.select(mode);assert(panel.frame.size==NSSize(width:520,height:690))}
 func descendants(_ view:NSView)->[NSView] {view.subviews.flatMap{[$0]+descendants($0)}}
 panel.select("day")
-var researchOpened=false,timelineOpened=false,changesOpened=false
+var researchOpened=false,timelineOpened=false,changesOpened=false,sourcesOpened=false
 panel.openResearch={researchOpened=true}
 panel.openTimeline={timelineOpened=true}
 panel.openChanges={changesOpened=true}
+panel.openSources={sourcesOpened=true}
 let dayActions=descendants(panel).compactMap{$0 as? NSButton}
-for title in ["original cross","day timeline","incoming source changes"] {
+for title in ["original cross","day timeline","incoming source changes","promise registry & sources"] {
     guard let button=dayActions.first(where:{$0.accessibilityLabel()==title}) else {fatalError("Missing Day action: \(title)")}
     button.performClick(nil)
 }
-assert(researchOpened && timelineOpened && changesOpened,"Day routes invoke the original cross, timeline and incoming changes callbacks")
+assert(researchOpened && timelineOpened && changesOpened && sourcesOpened,"Day routes invoke the original cross, timeline, changes and source registry callbacks")
 print("check-in sync: offline persistence; browser import; newest conflicts/in-flight edits; durable per-board receipts; invalid records; opt-out fencing; public demo exclusion; original cross/day timeline/incoming changes navigation; 520×690 passed")

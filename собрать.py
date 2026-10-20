@@ -5,6 +5,7 @@
 import json, os, sys, math, datetime as dt, pathlib, importlib, zoneinfo, argparse
 from provenance import adapter_evidence, manual_evidence, weight_evidence, receipt, atomic_json, atomic_text, calendar_adapter, collection_timezone, read_overrides, apply_override, prepare_weight, enrich_item
 from board_state import board_key, write_board
+from commitment_links import consolidate_commitments
 H = pathlib.Path(__file__).parent; sys.path.insert(0, str(H))
 # Пояс берётся из окружения, иначе местный: у инструмента нет своей географии.
 TZ = collection_timezone(H)
@@ -51,7 +52,8 @@ for л, blk in ручное['лучи'].items():
 наложения.update(read_overrides(H))
 for e in seen.values():
     apply_override(e, наложения.get(e['id']))
-for e in seen.values():
+linked_rows, _ = consolidate_commitments(list(seen.values()))
+for e in linked_rows:
     enrich_item(e, правила, сейчас)
     лучи[e['луч']]['элементы'].append(e)
 for л in лучи:

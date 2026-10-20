@@ -4,7 +4,7 @@
 
 [Try the fictional day](https://apps.aimindset.org/krest/demo.html) · [Product and download](https://apps.aimindset.org/krest/) · [Releases](https://github.com/ai-mindset-org/toxic-cross/releases) · [Method](docs/METHOD.md)
 
-Mac and workspace 3.0 are an **experimental developer preview**. The weights and four-arm construct are inspectable product choices. No health score or psychological diagnosis is inferred. Source calendar events remain read-only.
+Mac and workspace 3.1 are an **experimental developer preview**. The weights and four-arm construct are inspectable product choices. No health score or psychological diagnosis is inferred. Source calendar events remain read-only.
 
 ## Choose your start
 
@@ -60,3 +60,5 @@ Code: [MIT](LICENSE). Bundled fonts: [SIL OFL](ASSET-LICENSES.md). Privacy, stor
 ## Preview artwork
 
 The initial HTML includes complete OG/Twitter metadata and a versioned 1200×630 static PNG. `python3 render_preview.py` reproduces the cover from bundled fonts and the authentic Krest/family SVGs using Pillow. Configure deployment-specific canonical and image URLs for a self-hosted installation. The public cover contains no personal records.
+
+Sources can also display an owner-scoped promise registry. Machine-extracted candidates remain separate from scored obligations. Full IDs, exact/window/unknown deadlines, source links and reconciliation flags remain inspectable. Explicit reviewed task identities connect promise, Linear and accepted focus evidence with one representative weight. Existing manual model annotations stay labelled. See [commitment evidence](docs/COMMITMENT-LINKS.md).

@@ -1,3 +1,7 @@
+Krest 3.1.0 (build 13) – 2026-10-20 · experimental developer preview
+
+Sources now includes a read-only promise registry: date precision, age, review flags, source links and counted/linked/candidate/closed states. Explicit reviewed promise/task/focus relations retain one representative weight. Machine extraction alone adds no model weight; existing declared manual weights remain labelled. Source-quality recalculation does not establish completed work. Native Day and menu open the promise registry directly. Personal sources stay private; the public registry is fictional. No new notification schedule or upstream writes.
+
 Krest workspace 3.0.1 – 2026-10-20
 
 Public demo hide/restore actions now include their signed model-weight delta, using the current retained source record. Mac download remains 3.0.0 build 12.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.0 · build 13 · 2026-10-20
+
+- Read-only owner promise registry with typed dates, quality/review flags, source links and explicit model contributions.
+- Explicit task/focus/reviewed-promise links count one representative weight. Candidates remain outside automatic scoring; manual model annotations are preserved.
+- Registry influence follows hide/restore. Rule changes are distinct from completion or personal check-ins.
+- Mac Day and menu open the promise registry and source receipts. No new notification schedule or upstream writes.
+
+
 ## 3.0.0 · build 12 · 2026-10-20
 
 - Overview joins actual calendar phases, the available confirmed plan, draft context and optional event check-ins.

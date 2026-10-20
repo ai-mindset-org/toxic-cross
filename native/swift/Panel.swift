@@ -120,6 +120,7 @@ final class ПанельView: NSView {
     var openResearch:(()->Void)?
     var openTimeline:(()->Void)?
     var openChanges:(()->Void)?
+    var openSources:(()->Void)?
     var saveReview:((CalendarMoment,Int,Int,String)->Bool)?
     var toggleReminders:((Bool)->Void)?
     var saveBoard:((String)->Bool)?
@@ -280,6 +281,7 @@ final class ПанельView: NSView {
         if !boardAddress.isEmpty {
             add(row([button("original cross",width:190,tip:"inspect the four-direction source model · #research"){[weak self] in self?.openResearch?()},button("day timeline",width:190,tip:"open today's schedule and longer commitments · #timeline"){[weak self] in self?.openTimeline?()}]))
             add(button("incoming source changes",width:260,tip:"inspect added, changed and hidden board records · #changes"){[weak self] in self?.openChanges?()})
+            add(button("promise registry & sources",width:260,tip:"review candidates, exact dates and the weight of linked commitments · #sources"){[weak self] in self?.openSources?()})
         }
         add(label(UserDefaults.standard.bool(forKey:EventNotices.enabledKey) ? "Check-in reminders: on · manage in Settings" : "Check-in reminders: off · check-in buttons stay available",size:10,muted:true))
         add(row([button("open calendar",width:164,tip:"open Calendar Control, or macOS Calendar when it is not installed"){[weak self] in self?.openCalendar?()},button("refresh sources",width:164,tip:"read the calendar snapshot and the board again; Google is not asked"){[weak self] in self?.обновить?()}]))

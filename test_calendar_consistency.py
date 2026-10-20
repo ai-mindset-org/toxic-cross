@@ -65,7 +65,7 @@ class CalendarCollectionTests(unittest.TestCase):
             def now(cls, tz=None): return fixed.astimezone(tz) if tz else fixed.replace(tzinfo=None)
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder); original = Path(__file__).parent
-            for name in ('собрать.py', 'provenance.py', 'board_state.py', 'правила.json'):
+            for name in ('собрать.py', 'provenance.py', 'board_state.py', 'commitment_links.py', 'правила.json'):
                 shutil.copyfile(original / name, root / name)
             sources = root / 'источники'; sources.mkdir()
             adapters = root / 'адаптеры'; adapters.mkdir()

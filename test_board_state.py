@@ -113,7 +113,7 @@ class BoardStateTests(unittest.TestCase):
 
     def test_full_collector_retains_hidden_and_distinct_same_id_sources(self):
         origin = Path(__file__).parent
-        for file in ('собрать.py', 'provenance.py', 'board_state.py', 'правила.json'):
+        for file in ('собрать.py', 'provenance.py', 'board_state.py', 'commitment_links.py', 'правила.json'):
             shutil.copyfile(origin / file, self.root / file)
         (self.root / 'источники').mkdir()
         manual = {'лучи': {'обязательства': {'элементы': [item(source='manual-A'), item(source='manual-B')]}}, 'день': []}

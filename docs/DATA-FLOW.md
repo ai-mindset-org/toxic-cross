@@ -74,3 +74,11 @@ Changes distinguish added/changed/removed source records from hide/restore actio
 The public demo uses `krest.demo.board.v3` browser storage for visibility and changes, and never sends these operations to a private API. Only source-backed entries confirmed by the user (`confirmed_by_user: true`) appear as the accepted plan. Missing/expired focus inputs remain explicit. Unaccepted obligations are suggestions.
 
 Mac 3.0 opens Overview, original Cross, day Timeline and Changes through the configured private address. Its existing one-minute source polling reads the same projected totals; ratings continue through the separate occurrence journal. Reminder preferences remain controlled in Mac Settings; the browser does not request notification permission.
+
+## Owner-scoped promise projection (3.1)
+
+The optional `promiseRegistry` is a read-only derivative of an existing owner feed. `promise_projection.py` validates source capture/expiry and exact owner identity, retains full source IDs and review flags, and keeps extracted candidates separate from model records. Closed entries remain inspectable. Date windows never become invented exact deadlines. Missing sources, questions/decisions and unverified completion claims receive no automatic weight. A previously declared manual weight remains explicit; it does not establish registry acceptance or closure.
+
+`commitment_links.py` joins accepted focus to an exact active Linear identifier, and joins a reviewed promise only when its producer supplies an explicit reviewed task identity. A literal task reference or similar wording is insufficient. The active Linear weight is retained; otherwise an accepted focus can supply the single representative. Linked inputs and original references remain in the detail drawer. Registry contributions are reprojected after hide/restore, so a hidden representative contributes zero.
+
+The private collector uses its existing timer and forwarded owner feed. It never writes to the upstream registry or Linear. Promise reminder delivery remains with the existing personal Focus/TheDog owner; Krest adds no promise notification. The declared rules version changes when this counting policy is adopted. Lower weights from quality filtering or deduplication do not establish completed work or a change in personal feeling. Public fixtures are synthetic.

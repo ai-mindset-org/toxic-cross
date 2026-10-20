@@ -1,15 +1,15 @@
 {
-  "version": "3.0.0",
-  "workspaceVersion": "3.0.1",
-  "build": 12,
+  "version": "3.1.0",
+  "workspaceVersion": "3.1.0",
+  "build": 13,
   "date": "2026-10-20",
-  "download": "Krest-3.0.0-arm64.zip",
-  "sha256": "1b2ee2a0273aeb40f14e366988533ec6dedfffc61f8f11ddc79fb67cfd0e92c9",
+  "download": "Krest-3.1.0-arm64.zip",
+  "sha256": "3906acce9ad4222ea5be49cafde715cab27f4cca302ec3a16f95ae6291ec9c8c",
   "architecture": "arm64",
   "minimumMacOS": "13.0",
   "signature": "ad-hoc",
   "notarized": false,
   "channel": "experimental developer preview",
   "source": "https://github.com/ai-mindset-org/toxic-cross",
-  "release": "https://github.com/ai-mindset-org/toxic-cross/releases/tag/v3.0.0"
+  "release": "https://github.com/ai-mindset-org/toxic-cross/releases/tag/v3.1.0"
 }

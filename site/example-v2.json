@@ -73,7 +73,39 @@
             "time": {
               "basis": "source-offset"
             }
-          }
+          },
+          "commitment": {
+            "canonicalId": "task:DEMO-1",
+            "policy": "One representative task weight",
+            "reason": "The fictional reviewed promise and accepted focus refer to this same task.",
+            "inputs": [
+              {
+                "source": "задачи",
+                "id": "fictional-обязательства0",
+                "weight": 3,
+                "representative": true
+              },
+              {
+                "source": "обещания",
+                "id": "demo-reviewed",
+                "promiseId": "demo-reviewed",
+                "weight": 2,
+                "representative": false
+              },
+              {
+                "source": "фокус",
+                "id": "fictional-focus-draft",
+                "weight": 2,
+                "representative": false
+              }
+            ]
+          },
+          "references": [
+            {
+              "url": "https://apps.aimindset.org/krest/demo.html#sources",
+              "label": "Open fictional promise registry"
+            }
+          ]
         },
         {
           "id": "fictional-обязательства1",
@@ -361,6 +393,200 @@
         "record": {
           "title": "Four invented events loaded"
         }
+      }
+    ]
+  },
+  "promiseRegistry": {
+    "schema_version": 1,
+    "fresh": true,
+    "complete": true,
+    "source": "Fictional owner feed",
+    "source_last_success_at": "2026-10-20T06:00:00Z",
+    "checked_at": "2026-10-20T06:01:00Z",
+    "coverage": "Five invented records. No personal registry is connected.",
+    "url": "https://apps.aimindset.org/krest/demo.html#sources",
+    "records": [
+      {
+        "owner_id": 1,
+        "owner_registry": "Fictional owner",
+        "source": "Fictional meeting",
+        "source_ref": "fictional/example-meeting.md",
+        "meeting_date": "2026-10-01",
+        "age_days": 19,
+        "next_step": "Review the source deliberately",
+        "linear_links": [],
+        "references": [
+          {
+            "url": "https://apps.aimindset.org/krest/demo.html#sources",
+            "label": "Open fictional registry"
+          }
+        ],
+        "id": "demo-reviewed",
+        "title": "Share the first draft",
+        "text": "Share the first draft",
+        "status": "open",
+        "kind": "task",
+        "confirmation": "source-action-ledger",
+        "flags": [],
+        "deadline": {
+          "kind": "exact",
+          "date": "2026-10-20",
+          "label": "20 Oct · exact date"
+        },
+        "influence": {
+          "kind": "linked",
+          "weight": 0,
+          "representativeId": "fictional-обязательства0",
+          "representativeWeight": 3,
+          "reason": "The task is counted once; this reviewed promise supplies linked evidence."
+        },
+        "chain_id": "task:DEMO-1"
+      },
+      {
+        "owner_id": 1,
+        "owner_registry": "Fictional owner",
+        "source": "Fictional meeting",
+        "source_ref": "fictional/example-meeting.md",
+        "meeting_date": "2026-10-01",
+        "age_days": 19,
+        "next_step": "Review the source deliberately",
+        "linear_links": [],
+        "references": [
+          {
+            "url": "https://apps.aimindset.org/krest/demo.html#sources",
+            "label": "Open fictional registry"
+          }
+        ],
+        "id": "demo-extracted",
+        "title": "Clarify an old extracted request",
+        "text": "Clarify an old extracted request",
+        "status": "open",
+        "kind": "task",
+        "confirmation": "machine-extracted",
+        "flags": [
+          "old",
+          "overdue",
+          "needs-result"
+        ],
+        "deadline": {
+          "kind": "exact",
+          "date": "2026-10-18",
+          "overdue": true,
+          "label": "18 Oct · exact-date overdue"
+        },
+        "influence": {
+          "kind": "candidate",
+          "weight": 0,
+          "reason": "An extraction with no confirmed acceptance."
+        },
+        "chain_id": "promise:demo-extracted"
+      },
+      {
+        "owner_id": 1,
+        "owner_registry": "Fictional owner",
+        "source": "Fictional meeting",
+        "source_ref": "fictional/example-meeting.md",
+        "meeting_date": "2026-10-01",
+        "age_days": 19,
+        "next_step": "Review the source deliberately",
+        "linear_links": [],
+        "references": [
+          {
+            "url": "https://apps.aimindset.org/krest/demo.html#sources",
+            "label": "Open fictional registry"
+          }
+        ],
+        "id": "demo-window",
+        "title": "Review what “that week” meant",
+        "text": "Review what “that week” meant",
+        "status": "open",
+        "kind": "task",
+        "confirmation": "machine-extracted",
+        "flags": [
+          "needs-date",
+          "window-elapsed"
+        ],
+        "deadline": {
+          "kind": "window",
+          "window_start": "2026-10-12",
+          "window_end": "2026-10-18",
+          "window_elapsed": true,
+          "label": "12–18 Oct · exact day unspecified"
+        },
+        "influence": {
+          "kind": "candidate",
+          "weight": 0,
+          "reason": "A date window remains a window."
+        },
+        "chain_id": "promise:demo-window"
+      },
+      {
+        "owner_id": 1,
+        "owner_registry": "Fictional owner",
+        "source": "Fictional meeting",
+        "source_ref": "fictional/example-meeting.md",
+        "meeting_date": "2026-10-01",
+        "age_days": 19,
+        "next_step": "Review the source deliberately",
+        "linear_links": [],
+        "references": [
+          {
+            "url": "https://apps.aimindset.org/krest/demo.html#sources",
+            "label": "Open fictional registry"
+          }
+        ],
+        "id": "demo-question",
+        "title": "A question preserved as a question",
+        "text": "A question preserved as a question",
+        "status": "open",
+        "kind": "decision",
+        "confirmation": "machine-extracted",
+        "flags": [
+          "not-commitment"
+        ],
+        "deadline": {
+          "kind": "unknown",
+          "label": "No deadline established"
+        },
+        "influence": {
+          "kind": "candidate",
+          "weight": 0,
+          "reason": "A question is not automatically a personal commitment."
+        },
+        "chain_id": "promise:demo-question"
+      },
+      {
+        "owner_id": 1,
+        "owner_registry": "Fictional owner",
+        "source": "Fictional meeting",
+        "source_ref": "fictional/example-meeting.md",
+        "meeting_date": "2026-10-01",
+        "age_days": 19,
+        "next_step": "Review the source deliberately",
+        "linear_links": [],
+        "references": [
+          {
+            "url": "https://apps.aimindset.org/krest/demo.html#sources",
+            "label": "Open fictional registry"
+          }
+        ],
+        "id": "demo-closed",
+        "title": "An explicitly closed fictional action",
+        "text": "An explicitly closed fictional action",
+        "status": "closed",
+        "kind": "task",
+        "confirmation": "source-action-ledger",
+        "flags": [],
+        "deadline": {
+          "kind": "unknown",
+          "label": "No deadline established"
+        },
+        "influence": {
+          "kind": "closed",
+          "weight": 0,
+          "reason": "The fictional source registry explicitly records closure."
+        },
+        "chain_id": "promise:demo-closed"
       }
     ]
   }
