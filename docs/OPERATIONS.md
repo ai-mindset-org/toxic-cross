@@ -57,6 +57,6 @@ An optional ritual job uses this same one-shot service pattern with `ExecStart=.
 
 `python3 docs/healthcheck.py` reports `local 200`, plus `private remote 200` when KREST_PRIVATE_URL is set. Reuse the one-shot template at a chosen five-minute interval if wanted. It neither changes routes nor restarts anything. An optional recovery action must name only the exact owner-approved Krest server service and have a bounded restart policy; systemd Restart handles process exits. Never disable TLS verification or widen the listening interface to pass a health check.
 
-## Video slot
+## Product film
 
-The package page has a poster-only `<video>` and a source with `data-src="assets/krest-demo.mp4"`. When the reviewed demo film is ready, place that file in site/assets/, replace `data-src` with `src`, enable `controls`, and update the adjacent availability caption in both languages. Mirror those files to the hosting repo; no native app rebuild is needed.
+The short landing uses a genuine poster and explicit play button immediately after the live cross. The reviewed film is `site/assets/krest-demo.mp4`, with `krest-demo-poster.jpg`; its source is the separate product-demo workflow. Playback starts only on the person's click and starts muted. Agent checks keep it muted. Preserve those assets when updating the page, and mirror reviewed changes into the existing hosting folder. No native app rebuild is involved.

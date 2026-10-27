@@ -120,7 +120,7 @@
   function age(value){const n=(Date.now()-new Date(value))/60000;return Number.isFinite(n)?n<1?'just now':n<60?`${Math.floor(n)} min ago`:`${Math.floor(n/60)} h ago`:'capture time unknown';}
   function sourceState(s){return s==='live'?'observed':s==='manual'?'manual annotation':s==='expired'?'expired snapshot':s==='quiet'?'partial / quiet':s==='dead'?'unavailable':'not connected';}
   function render(){
-    if(host.dataset.mode==='configure'){host.innerHTML=drawResearchCross(data.records);return;}
+    if(['configure','landing'].includes(host.dataset.mode)){host.innerHTML=drawResearchCross(data.records);return;}
     if(!data)return;
     hideHover();
     const overviewOpen=[...host.querySelectorAll('details[data-overview-detail][open]')].map(node=>node.dataset.overviewDetail);
@@ -246,7 +246,7 @@
     let lines='',blocks='',labels='';
     for(const arm of ARMS){const [dx,dy,length]=geometry[arm],items=list.filter(r=>r.arm===arm),sum=items.reduce((s,r)=>s+r.weight,0);lines+=`<path d="M${cx} ${cy}L${cx+dx*length} ${cy+dy*length}"/>`;
       for(const hours of [24,168,720,8760])if(hours<=windowHours){const distance=45+log(hours)*(length-70),x=cx+dx*distance,y=cy+dy*distance;lines+=`<path d="M${x-(dy?4:0)} ${y-(dx?4:0)}l${dy?8:0} ${dx?8:0}"/><text data-time-tick="${hours}" x="${x+(dy?12:0)}" y="${y+(dx?-12:4)}" text-anchor="${dy?'start':'middle'}">${horizonLabel(hours)}</text>`;}
-      const hx=cx+dx*(length+34),hy=cy+dy*(length+34);labels+=`<g class="cross-direction" role="button" tabindex="0" data-focus-arm="${arm}" aria-label="Explore ${name(arm)} direction; ${items.length} records; weight ${sum.toFixed(1)}"><rect class="direction-hit" x="${Math.max(0,hx-96)}" y="${hy-42}" width="192" height="92" rx="8"/><text class="cross-arm-label" x="${hx}" y="${hy}" text-anchor="middle">${esc(host.dataset.mode==='configure'||data.raw.configurator?.version===1 ? data.raw['лучи'][arm]['подпись'] : name(arm).toUpperCase())}</text><text class="cross-arm-sum" x="${hx}" y="${hy+22}" text-anchor="middle">weight ${sum.toFixed(1)} · ${items.length}</text></g>`;
+      const hx=cx+dx*(length+34),hy=cy+dy*(length+34);labels+=`<g class="cross-direction" role="button" tabindex="0" data-focus-arm="${arm}" aria-label="Explore ${name(arm)} direction; ${items.length} records; weight ${sum.toFixed(1)}"><rect class="direction-hit" x="${Math.max(0,hx-96)}" y="${hy-42}" width="192" height="92" rx="8"/><text class="cross-arm-label" x="${hx}" y="${hy}" text-anchor="middle">${esc(['configure','landing'].includes(host.dataset.mode)||data.raw.configurator?.version===1 ? data.raw['лучи'][arm]['подпись'] : name(arm).toUpperCase())}</text><text class="cross-arm-sum" x="${hx}" y="${hy+22}" text-anchor="middle">weight ${sum.toFixed(1)} · ${items.length}</text></g>`;
       const occupied=[];
       for(const [index,r] of items.entries()){const distance=45+(r.hours==null?0:clamp(log(r.hours),0,1))*(length-70),along=clamp(8+Math.abs(weightOf(r))*6,9,64),thick=r.scope==='глобальное'?18:r.scope==='недельное'?13:8;let lane=0;while(occupied.some(p=>p.lane===lane&&Math.abs(p.distance-distance)<(p.along+along)/2+5))lane++;occupied.push({lane,distance,along});const laneSpacing=Math.min(25,(dy?600:420)/Math.max(2,items.length)),offset=(lane===0?0:(lane%2?1:-1)*Math.ceil(lane/2)*laneSpacing),x=cx+dx*distance+(dy?offset:0),y=cy+dy*distance+(dx?offset:0),w=dx?along:thick,h=dy?along:thick;blocks+=svgRecord(r,x-w/2,y-h/2,w,h);if(selectedRecord===r.key){const label=r.title.length>32?r.title.slice(0,31)+'…':r.title,side=(index%2?-1:1)*(arm==='ресурсы'?-1:1);labels+=`<text class="block-label" x="${x+(dy?side*20:0)}" y="${y+(dx?(index%2?26:-20):4)}" text-anchor="${dy?(side>0?'start':'end'):'middle'}">${esc(label)}</text>`;}}
     }
@@ -281,8 +281,8 @@
       if(!selected&&!host.querySelector('dialog')?.open){render();if(hadRecord&&!selectedRecord)host.querySelector('[data-layout]')?.focus({preventScroll:true});}
     }catch(error){loadError=error.message;if(data){if(!selected&&!host.querySelector('dialog')?.open)render();}else host.innerHTML=`<div class="app"><h1>Krest</h1><p class="empty">${esc(loadError)}. No current state has been inferred.</p><button data-action="refresh">try again</button></div>`;}
   }
-  if(host.dataset.mode==='configure'){
-    root.KrestPreview={update(raw){data=normalize(raw);render();}};
+  if(['configure','landing'].includes(host.dataset.mode)){
+    root.KrestPreview={update(raw){data=normalize(raw);render();},reframe(on){previewTargets.clear();if(on)for(const record of data.records)previewTargets.add(record.key);render();}};
     return;
   }
   host.addEventListener('click',async event=>{const overviewLink=event.target.closest('[data-overview-horizon]');if(overviewLink){event.preventDefault();timelineHorizon=overviewLink.dataset.overviewHorizon;timelineFilter='all';navigate('timeline');return;}if(event.target.closest('[data-dismiss-record]')){closeRecord();return;}const record=event.target.closest('[data-record]');if(record){recordTrigger={key:record.dataset.record,row:record.classList.contains('record-row')};selectedRecord=record.dataset.record;render();return;}const direction=event.target.closest('[data-focus-arm]');if(direction){tab='research';armFilter=direction.dataset.focusArm;selectedRecord='';render();host.querySelector('.focused-arm')?.focus({preventScroll:true});return;}const b=event.target.closest('button');if(!b)return;

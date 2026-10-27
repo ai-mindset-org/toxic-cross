@@ -1,11 +1,25 @@
-# Krest package choices
+# Krest package and landing pattern
 
-**Browser only.** The fastest first encounter: fictional demo and browser-only configurator, no account, install or source permission. A person can inspect the four directions and download a portable rules file. The public website cannot read a personal calendar or host a private field. This is the entry point of the package.
+**Browser only.** A fictional cross and browser configurator let a person try the mechanism and export rules without connecting an account. This is the first encounter.
 
-**Mac companion.** The existing 3.1.0 build 13 native panel provides Balance, Day, History and Settings, local calendar context and voluntary check-ins. It works without a private board. Calendar sharing, ratings sync and reminders have separate controls. Apple silicon/macOS 13+ and developer-preview signing constrain distribution; the package keeps the current download and explains those conditions.
+**Mac companion.** The existing 3.1.0 build 13 panel adds calendar context, voluntary check-ins and history. Apple silicon/macOS 13+, developer-preview signing and separate sharing controls remain explicit in the optional download details. This wave changes public presentation, with no native rebuild.
 
-**Own server with an agent.** A local Python board plus explicit rules and one read-only source gives the most adaptable field. Claude Code or Codex follows AGENTS.md and skills/krest/SKILL.md. Start on loopback on the current computer; Linux hosting, authenticated private remote access, a personal bot and schedules are optional extensions requiring consent. The page therefore uses one family header, a thin Krest row and four ordered steps: try → inspect the Mac app → configure → set up with an agent. Native screenshots use fictional fixtures; the video slot is assets/krest-demo.mp4, initially poster-only.
+**Own field with an agent.** AGENTS.md and skills/krest/SKILL.md use five steps in the same order: copy the prompt → start the fictional day → choose weights → connect one source → optionally add the Mac app. The local server stays on loopback; bot rituals, timers and private remote access are later opt-in extensions.
 
-Design: preserve the accepted N1 apps storefront, shared Plex typography, light surface and restrained red; reuse the existing workspace cross renderer. Configuration exports the existing engine schema, with versioned optional settings. Source selections request setup; no account is connected by the configurator.
+## Reusable apps landing · v2
 
-The configurator lives in the existing legacy setup document, `build.html#configure`. Shared configuration links use `build.html?config=…#configure`. No new hosting HTML or parent-page registration is introduced.
+1. **First screen:** product mark and authentic voxel, one sentence, one primary setup link, and a live fictional field. Embed the existing product renderer in one stable state with one meaningful interaction; never replay navigation tabs inside the landing.
+2. **Large film:** the existing product-demo MP4 immediately follows the first screen. Keep a genuine poster before play; no autoplay or sound during agent checks.
+3. **Three short blocks:** what the person sees, how it becomes theirs, and the credited origin. One paragraph each.
+4. **Five steps:** each row says the action and visible result. Step one copies the prompt; step three opens the configurator; the native download is last and optional. Explicitly link AGENTS.md as the guide's source.
+5. **GitHub:** a clear code link, ownership/data boundary and concise method link. Preserve the suite's shared header and footer. Keep release diagnostics and deep setup material in disclosures or the existing setup document.
+
+Krest's configurator remains in the legacy `build.html#configure`; links reopen as `build.html?config=…#configure`. No new hosting HTML or parent registration is introduced. EN/RU use the existing i18n. Screenshots and source records are fictional.
+
+## Identity source
+
+`site/assets/krest-identity.json` is the single product source for the 48-grid mark, favicon, 144-voxel character, README banner and OG covers. `render_identity.py` generates the SVG/PNG outputs, using the N1 frame (38/rx8/2), at most four glyph strokes, one red frame signal, the shared voxel projection and one 2×2 red signal block. The model is inside 12³ and below 200 voxels. `render_preview.py` invokes the same generator. Run `uv run --with pillow --with fonttools python render_identity.py`.
+
+The product character source is available for the storefront owner's next shared-catalog sync; this task does not edit `sites/apps/assets` or the catalog. The native binary keeps its shipped assets until its own release. Static output has no idle animation; future live character motion must use the shared finite assemble/gesture/reduced-motion contract.
+
+The README uses the organisation profile's grey banner, red mono heading and voxel on the right. Its bounded silent GIF demonstrates a real interaction. See README-TEMPLATE.md for the reusable pattern.

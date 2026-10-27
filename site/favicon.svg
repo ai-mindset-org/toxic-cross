@@ -1,15 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <rect width="1024" height="1024" rx="180" fill="#ffffff"/>
-  <rect x="64" y="64" width="896" height="896" rx="128" fill="none" stroke="#e8e9ed" stroke-width="16"/>
-  <g stroke="#202124" stroke-width="26" stroke-linecap="round">
-    <line x1="512" y1="228" x2="512" y2="796"/>
-    <line x1="228" y1="512" x2="796" y2="512"/>
-  </g>
-  <g fill="#202124">
-    <rect x="474" y="300" width="76" height="120" rx="6"/>
-    <rect x="486" y="440" width="52" height="70" rx="6"/>
-    <rect x="300" y="486" width="110" height="52" rx="6"/>
-    <rect x="620" y="490" width="96" height="44" rx="6"/>
-  </g>
-  <circle cx="512" cy="392" r="46" fill="#db303d"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Krest · four directions"><rect x="5" y="5" width="38" height="38" rx="8" fill="none" stroke="#202124" stroke-width="2"/><g fill="none" stroke="#202124" stroke-width="2" stroke-linecap="round"><path d="M24 13V21"/><path d="M27 24H35"/><path d="M24 27V35"/><path d="M13 24H21"/></g><rect x="32" y="5" width="6" height="4" rx=".5" fill="#db303d"/></svg>

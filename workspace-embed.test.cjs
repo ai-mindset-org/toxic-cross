@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const {JSDOM}=require(process.env.KREST_JSDOM||'jsdom');
+(async()=>{const raw=JSON.parse(fs.readFileSync('site/example-v2.json','utf8')),before=JSON.stringify(raw),calls=[];
+const dom=new JSDOM('<html data-krest-embed><body><div id="krest-workspace" data-mode="landing"></div></body></html>',{url:'http://localhost/demo.html?embed=cross',runScripts:'outside-only'}),w=dom.window;
+w.fetch=async url=>{calls.push(url);return {ok:true,json:async()=>JSON.parse(before)}};
+w.eval(fs.readFileSync('site/assets/workspace-v2.js','utf8'));w.eval(fs.readFileSync('site/assets/cross-embed.js','utf8'));
+await new Promise(r=>setTimeout(r,20));const q=s=>w.document.querySelector(s),button=q('.embed-controls button');
+assert(button&&!button.disabled);assert.equal(w.document.querySelectorAll('[role="tab"]').length,0);assert.equal(w.document.querySelectorAll('.cross-arm-label').length,4);
+const x=q('.observed-dot').getAttribute('cx'),y=q('.observed-dot').getAttribute('cy');button.click();assert.equal(button.getAttribute('aria-pressed'),'true');assert(q('.preview-dot'));assert.equal(q('.observed-dot').getAttribute('cx'),x);assert.equal(q('.observed-dot').getAttribute('cy'),y);
+button.click();assert.equal(button.getAttribute('aria-pressed'),'false');assert.equal(q('.preview-dot'),null);assert.deepEqual(calls,['example-v2.json']);assert.equal(JSON.stringify(raw),before);assert.equal(w.localStorage.length,0);
+w.close();console.log('PASS focused cross: no tabs, reversible preview, immutable source, fictional read only, no journal writes');})().catch(e=>{console.error(e);process.exit(1)});
