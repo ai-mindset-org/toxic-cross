@@ -4,7 +4,7 @@
 
 **See obligations, resources, past and future in one field.** Try a fictional day, choose your weights and build a private cross on your own data.
 
-[**try the demo**](https://apps.aimindset.org/krest/demo.html?utm_source=github&utm_medium=readme&utm_campaign=krest#research) · [**download for Mac**](https://apps.aimindset.org/krest/?utm_source=github&utm_medium=readme&utm_campaign=krest#mac) · [**configure**](https://apps.aimindset.org/krest/build.html?utm_source=github&utm_medium=readme&utm_campaign=krest#configure) · [**set up with your agent**](https://apps.aimindset.org/krest/?utm_source=github&utm_medium=readme&utm_campaign=krest#install)
+[![∆](docs/readme-demo.svg)](https://apps.aimindset.org/krest/demo.html?utm_source=github&utm_medium=readme&utm_campaign=krest#research) [![∆](docs/readme-mac.svg)](https://apps.aimindset.org/krest/?utm_source=github&utm_medium=readme&utm_campaign=krest#mac) [![∆](docs/readme-configure.svg)](https://apps.aimindset.org/krest/build.html?utm_source=github&utm_medium=readme&utm_campaign=krest#configure) [![∆](docs/readme-agent.svg)](https://apps.aimindset.org/krest/?utm_source=github&utm_medium=readme&utm_campaign=krest#install)
 
 ![The Krest cross: declared weights, a balance dot and a reversible perspective preview on fictional data](site/assets/krest-in-motion.gif)
 

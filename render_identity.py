@@ -84,6 +84,8 @@ def render():
  banner=Canvas(1200,400,P['wash']);banner.text(64,40,'AI MINDSET / SMALL TOOLS',16,P['muted']);banner.text(58,88,'KREST',88,P['red'],True);banner.text(64,204,'your day, in four directions.',27);banner.text(64,256,'demo · Mac · your own agent',19,P['muted']);banner.rect(64,316,646,1,P['line']);banner.text(64,342,'apps.aimindset.org/krest',19,bold=True);banner.character(838,54,292,294);banner.save(ASSETS/'readme-banner')
  for name,label,sub in [('social-krest-v2-20261027','your day, in four directions.','try · configure · set up with an agent'),('social-configure-v2-20261027','configure your cross.','weights · sources · your own rules')]:
   c=Canvas(1200,630,P['wash']);c.text(64,44,'AI Mindset',32,bold=True);c.text(58,146,'Krest',100,P['red'],True);c.text(64,292,label,27);c.text(64,372,sub,20,P['muted']);c.rect(64,482,648,1,P['line']);c.text(64,526,'apps.aimindset.org/krest',20,bold=True);c.character(792,112,330,370);c.mark(1090,540,48);c.save(ROOT/'site'/name)
+ for name,label in [('demo','try the demo'),('mac','download for Mac'),('configure','configure'),('agent','set up with your agent')]:
+  width=round(len(label)*8.4+30);c=Canvas(width,38,P['white']);c.d.rounded_rectangle((1,1,width*2-2,74),radius=4,outline=P['ink'],width=2);c.parts.append(f'<rect x=".5" y=".5" width="{width-1}" height="37" rx="2" fill="none" stroke="{P["ink"]}"/>');c.text(15,13,label,14);c.save(ROOT/'docs'/('readme-'+name))
  print('Rendered identity, banner and previews:',I['model']['count'],'voxels')
 
 if __name__=='__main__':render()

@@ -7,7 +7,7 @@ Use the AI Mindset organisation profile's grey panel, red mono product heading a
 
 **One sentence: what the person sees or can do.**
 
-[**try the demo**](DEMO) · [**download for Mac**](MAC) · [**configure**](CONFIGURE) · [**set up with your agent**](SETUP)
+[![try the demo](docs/readme-demo.svg)](DEMO) [![download for Mac](docs/readme-mac.svg)](MAC) [![configure](docs/readme-configure.svg)](CONFIGURE) [![set up with your agent](docs/readme-agent.svg)](SETUP)
 
 ![One real action and visible response, using fictional data](site/assets/product-in-motion.gif)
 
@@ -37,3 +37,5 @@ Made inside [AI Mindset labs](LABS_URL).
 ```
 
 All four primary links point to the product's `apps.aimindset.org/PRODUCT/…` journey and carry `utm_source=github&utm_medium=readme&utm_campaign=PRODUCT`. Put query parameters before fragments. Set repository homepage to the canonical product URL, description to one English sentence and topics to actual product capabilities. The one AIM ecosystem destination is the labs page. Verify GitHub's rendered README at 1440/390, the GIF, image proxy, headings, links and repository metadata after push.
+
+The four SVG link controls use the same identity palette and bundled mono font. Generate them with the identity renderer; include meaningful alt text. Keep the image links on one line so they wrap naturally into two rows on a phone.
