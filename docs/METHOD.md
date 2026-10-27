@@ -8,6 +8,16 @@ The original four-direction practice asks a person to revisit commitments, evide
 
 Begin with the accepted plan and scheduled day. Inspect the source and time basis of a demand. Consider an available resource and concrete next step. Revisit the recorded result or add a voluntary check-in. The dot describes source arithmetic; a check-in records an experience at its own time.
 
+## The original model and its adaptation
+
+The [18 September 2026 post](https://t.me/ai_mind_set/375) describes a synthesis of **Beck’s cognitive triad**, **Lazarus’s appraisal of demands against resources** and **Hobfoll’s loss spiral**. This is the original model’s framing; those theories do not validate this four-arm instrument or its weights.
+
+In that framing, obligations sit above (how many people are watching and what they expect), resources below (money, time and energy), past on the left (where something similar failed) and future on the right (a fan of bad scenarios). The instrument also allows practical observations, resources and possible next steps in those directions.
+
+Each fact has a declared base weight, a source scale and time decay. Default half-lives are **1 day** for situational, **7 days** for weekly and **45 days** for global context. The conceptual upward balance is `(Future − Past, Obligations − Resources)`; screen coordinates invert the vertical axis and normalize the totals as described below. The default signal is obligations > `3 × max(1, resources)`; the floor prevents a zero-resource division/threshold edge. This is a source-weight heuristic.
+
+Rename the four labels, choose sources and their scales, time horizons, half-lives and signal threshold in the [browser configurator](https://apps.aimindset.org/krest/build.html#configure), then connect one selected source. Inspect its source receipt and keep personal records private.
+
 ## Four directions
 
 - **Obligations:** a commitment, deadline or scheduled demand. Ask what is yours and what can be completed or renegotiated.
@@ -38,7 +48,7 @@ The form uses an event's identity and scheduled start/end to attach your answer.
 
 Review the four questions, write another plausible perspective or one practical next step, and revisit it later. Original events and obligations remain intact. Keeping the original interpretation, accepting a difficult experience or choosing practical action are valid outcomes.
 
-The research workspace offers temporary previews for a block, a direction or all records. A visible adjustable multiplier starts at 0.25. The calculation holds the observed snapshot's normalization constant while changing the selected weights; changing every weight therefore moves the illustrative position toward the centre. Source records remain unchanged. **The multiplier illustrates a thought experiment.** The four-arm construct, its weights, that multiplier and the old 26-second recoil have no established psychological calibration. The current workspace has no automatic evening flip or forced recoil. The private server retains the historical instrument under `/classic`; its animations do not establish effects on a person.
+The research workspace offers temporary previews for a block, a direction or all records. A visible adjustable multiplier starts at 0.25. The calculation holds the observed snapshot's normalization constant while changing the selected weights; changing every weight therefore moves the illustrative position toward the centre. Source records remain unchanged. **The multiplier illustrates a thought experiment.** The four-arm construct, its weights, that multiplier and the old 26-second recoil have no established psychological calibration. The private research workspace has no automatic evening flip or forced recoil. The landing’s separate **guided fictional demo** illustrates the historical rule: one arm starts at ×0.25, then neighbours return 75% of the removed weight linearly over 26 seconds (ending at ×0.8125); all four at ×0.25 hold until reset. Its arrows and timer are a visual explanation, with no psychological calibration. Changing a time window changes the visible records and axis of that arm while retaining the full snapshot balance. Source records are kept intact, and none of these actions writes personal data. The private server retains the historical instrument under `/classic`; its animations do not establish effects on a person.
 
 ## Evidence and limits
 
@@ -50,4 +60,4 @@ The full source ledger is in [RESEARCH-2026-10-16.md](RESEARCH-2026-10-16.md). P
 
 ## Origin
 
-The “toxic cross” model is Seva Ustinov’s idea, discussed on 15 September 2026. Krest is an attempt to test it hands-on with live data.
+The “toxic cross” model is [Vsevolod (Seva) Ustinov’s](https://t.me/vsevolodustinovchannel) idea, drawn during a conversation on 15 September 2026. The [18 September post](https://t.me/ai_mind_set/375) promised the code at 50 likes and received 106. After three versions over six weeks on live data, the open package followed on 27 October 2026. Krest is an attempt to test it hands-on.

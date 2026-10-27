@@ -18,14 +18,11 @@
 
 The guide comes from [AGENTS.md](AGENTS.md) in this repository. The [agent skill](skills/krest/SKILL.md) follows the same five steps.
 
-<details>
-<summary>Copy the setup prompt</summary>
+### Copy the setup prompt
 
 ```text
 Set up Krest on this computer from https://github.com/ai-mindset-org/toxic-cross. Read AGENTS.md and skills/krest/SKILL.md. Follow the five steps: copy this brief, start the fictional day on loopback, help me choose and apply правила.json at https://apps.aimindset.org/krest/build.html#configure, connect one source I choose, and optionally add the Mac app. Ask before installing an app, sending a bot message or enabling a schedule. Show me the working cross and a short verification receipt.
 ```
-
-</details>
 
 <details>
 <summary>Run the fictional day yourself</summary>
@@ -41,9 +38,13 @@ Open http://127.0.0.1:8777/ and choose Cross. Python 3.10+; no account. The serv
 
 </details>
 
+The [live walkthrough](https://apps.aimindset.org/krest/?utm_source=github&utm_medium=readme&utm_campaign=krest#live) includes block calculations, single-arm recoil, a four-arm flip and time windows. The Mac app includes a fictional day without setup when calendar access is unavailable; calendar mode reads this Mac locally. Set a private board URL in Settings when wanted.
+
 ## How to read it
 
 **Up:** obligations. **Down:** resources. **Left:** past experience. **Right:** possible futures.
+
+The original post connects **Beck’s cognitive triad**, **Lazarus’s demands/resources appraisal** and **Hobfoll’s loss spiral**. In the guided demo, a single-arm flip returns 75% of the removed weight over 26 seconds; flipping all four holds. This is an illustrative weight rule.
 
 A block's distance shows time, its size shows declared weight. The red dot shows the balance of those weights. Flip offers a temporary perspective preview; source records remain intact. Weights and the four-arm construct are experimental choices, with no psychological calibration. A calendar event ending does not establish completion or how it felt.
 
@@ -59,6 +60,6 @@ Code: [MIT](LICENSE). Fonts: [SIL OFL](ASSET-LICENSES.md). [Changelog](CHANGELOG
 
 ## Origin
 
-The “toxic cross” model is Seva Ustinov’s idea, discussed on 15 September 2026. Krest is an attempt to test it hands-on with live data.
+The “toxic cross” model is [Vsevolod (Seva) Ustinov’s](https://t.me/vsevolodustinovchannel) idea, drawn on a napkin during a conversation on **15 September 2026**. The [18 September post](https://t.me/ai_mind_set/375) promised the code at 50 likes and received 106. Three versions and six weeks of trials on live data led to the open package on **27 October 2026**. Krest is an attempt to test the model hands-on. [Method and limits](docs/METHOD.md).
 
 Made inside [AI Mindset labs](https://aimindset.org/?utm_source=github&utm_medium=readme&utm_campaign=krest#learning).

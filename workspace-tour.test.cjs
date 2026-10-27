@@ -1,0 +1,23 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const {JSDOM}=require(process.env.KREST_JSDOM||'jsdom');
+(async()=>{
+ const raw=JSON.parse(fs.readFileSync('site/example-v2.json','utf8')),before=JSON.stringify(raw),calls=[];
+ const dom=new JSDOM('<html data-krest-tour><body><div id="krest-workspace" data-mode="tour"></div></body></html>',{url:'http://localhost/demo.html?embed=tour',runScripts:'outside-only'}),w=dom.window;
+ let now=0,tick;w.matchMedia=()=>({matches:false});Object.defineProperty(w.performance,'now',{value:()=>now});
+ w.setInterval=fn=>(tick=fn,1);w.clearInterval=()=>{tick=null;};
+ w.fetch=async url=>{calls.push(url);return {ok:true,json:async()=>JSON.parse(before)}};
+ w.eval(fs.readFileSync('site/assets/workspace-v2.js','utf8'));w.eval(fs.readFileSync('site/assets/cross-tour.js','utf8'));
+ await new Promise(r=>setTimeout(r,10));
+ const q=s=>w.document.querySelector(s),pos=()=>[+q('.observed-dot').getAttribute('cx')-520,+q('.observed-dot').getAttribute('cy')-360];
+ const original=pos();assert(original.some(v=>v!==0));assert.equal(w.document.querySelectorAll('.cross-arm-label').length,4);assert.equal(w.document.querySelectorAll('[role=tab]').length,0);
+ q('[data-tour=one]').click();assert(q('.recoil-pull'));assert(q('.tour-card').textContent.includes('0.250'));
+ now=26000;tick();assert(!tick);assert(!q('.recoil-pull'));assert(q('.tour-card').textContent.includes('0.813'));
+ q('[data-tour=all]').click();pos().forEach((v,i)=>assert(Math.abs(v-original[i]*.25)<.00001));assert(!tick);
+ const seen=w.document.querySelectorAll('[data-time-tick="8760"]').length;
+ q('#tour-window').value='168';q('#tour-window').dispatchEvent(new w.Event('change'));
+ assert(w.document.querySelectorAll('[data-time-tick="8760"]').length<seen);pos().forEach((v,i)=>assert(Math.abs(v-original[i]*.25)<.00001));
+ q('[data-tour=reset]').click();assert.deepEqual(pos(),original);
+ q('[data-record]').dispatchEvent(new w.MouseEvent('click',{bubbles:true}));assert(q('.tour-card dl'));
+ assert.deepEqual(calls,['example-v2.json']);assert.equal(w.localStorage.length,0);assert.equal(JSON.stringify(raw),before);
+ w.close();console.log('PASS tour: finite single-arm recoil, stable four-arm balance at fixed scale, arm window preserves balance, reset and immutable fictional data.');
+})().catch(e=>{console.error(e);process.exit(1)});
