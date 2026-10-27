@@ -68,8 +68,15 @@ class Canvas:
    d.line(points,fill=P['ink'],width=max(1,round(f['stroke']*s)))
   sx,sy,sw,sh=I['signal'];d.rectangle((x*2+sx*s,y*2+sy*s,x*2+(sx+sw)*s,y*2+(sy+sh)*s),fill=P['red'])
 
- def save(self,path):
+ def aim(self,x,y,size=96):
+  # Preserve the complete approved AIM silhouette, including its right stem.
+  logo=Image.open(ASSETS/'aim-logo-light.png').convert('RGBA')
+  logo.thumbnail((size*2,size*2),Image.Resampling.LANCZOS)
+  self.im.paste(logo,(x*2,y*2),logo)
+
+ def save(self,path,png_only=False):
   path=Path(path);self.im.resize((self.w,self.h),Image.Resampling.LANCZOS).save(path.with_suffix('.png'),optimize=True)
+  if png_only:return
   path.with_suffix('.svg').write_text(f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.w}" height="{self.h}" viewBox="0 0 {self.w} {self.h}" role="img"><title>Krest · AI Mindset</title><!-- Generated from krest-identity.json SHA-256 {SHA} -->'+''.join(self.parts)+'</svg>')
 
 
@@ -82,8 +89,25 @@ def render():
  (ASSETS/'voxel-krest.svg').write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 360" width="320" height="360" role="img" aria-label="Krest · four directions"><title>Krest</title><!-- Generated from krest-identity.json -->'+''.join(polygon_svg(p,c) for p,c in voxel(20,12,280,328))+'</svg>\n')
  icon=Canvas(180,180,P['white']);icon.mark(0,0,180);icon.im.resize((180,180),Image.Resampling.LANCZOS).save(ROOT/'site/apple-touch-icon.png')
  banner=Canvas(1200,400,P['wash']);banner.text(64,40,'AI MINDSET / SMALL TOOLS',16,P['muted']);banner.text(58,88,'KREST',88,P['red'],True);banner.text(64,204,'your day, in four directions.',27);banner.text(64,256,'demo · Mac · your own agent',19,P['muted']);banner.rect(64,316,646,1,P['line']);banner.text(64,342,'apps.aimindset.org/krest',19,bold=True);banner.character(838,54,292,294);banner.save(ASSETS/'readme-banner')
- for name,label,sub in [('social-krest-v2-20261027','your day, in four directions.','try · configure · set up with an agent'),('social-configure-v2-20261027','configure your cross.','weights · sources · your own rules')]:
-  c=Canvas(1200,630,P['wash']);c.text(64,44,'AI Mindset',32,bold=True);c.text(58,146,'Krest',100,P['red'],True);c.text(64,292,label,27);c.text(64,372,sub,20,P['muted']);c.rect(64,482,648,1,P['line']);c.text(64,526,'apps.aimindset.org/krest',20,bold=True);c.character(792,112,330,370);c.mark(1090,540,48);c.save(ROOT/'site'/name)
+ for lang,kind,credit,labels in [
+  ('en','toxic cross','a model by Seva Ustinov',('obligations','resources','past','future')),
+  ('ru','токсичный крест','модель Севы Устинова',('обязательства','ресурсы','прошлое','будущее')),
+ ]:
+  c=Canvas(1200,630,P['wash'])
+  c.text(64,44,'AI Mindset',32,bold=True)
+  c.text(58,146,'Krest',100,P['red'],True)
+  c.text(64,272,kind,32)
+  c.text(64,372,credit,22,P['muted'])
+  c.rect(64,482,590,1,P['line'])
+  c.text(64,526,'apps.aimindset.org/krest',20,bold=True)
+  c.character(780,165,300,300)
+  top,bottom,left,right=labels
+  c.text(930-len(top)*6,114,top,20)
+  c.text(930-len(bottom)*6,493,bottom,20)
+  c.text(756-len(left)*12,312,left,20)
+  c.text(1100,312,right,20)
+  c.aim(1060,524,96)
+  c.save(ROOT/'site'/f'og-krest-{lang}-20261027',png_only=True)
  for name,label in [('demo','try the demo'),('mac','download for Mac'),('configure','configure'),('agent','set up with your agent')]:
   width=round(len(label)*8.4+30);c=Canvas(width,38,P['white']);c.d.rounded_rectangle((1,1,width*2-2,74),radius=4,outline=P['ink'],width=2);c.parts.append(f'<rect x=".5" y=".5" width="{width-1}" height="37" rx="2" fill="none" stroke="{P["ink"]}"/>');c.text(15,13,label,14);c.save(ROOT/'docs'/('readme-'+name))
  print('Rendered identity, banner and previews:',I['model']['count'],'voxels')
