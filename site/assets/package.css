@@ -3,3 +3,5 @@
 #configure{scroll-margin-top:20px}.configure-form fieldset{min-width:0}.manual-setup{padding:32px 0}.manual-setup details>summary{font-size:18px}.manual-setup h2{margin-top:28px}
 
 .configure-page>#configure{padding-top:0;border-top:0}
+
+.configure-preview .cross-arm-label,.configure-preview .cross-arm-sum{display:block}
