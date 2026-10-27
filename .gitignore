@@ -13,3 +13,8 @@ native/dist/
 источники/check-ins.local.json
 *.tmp
 .worktrees/
+
+# Private owner configuration and bot state
+.env
+.env.*
+!docs/.env.example

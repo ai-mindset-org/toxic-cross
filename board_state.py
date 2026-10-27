@@ -72,7 +72,7 @@ def rebalance(context):
     total = max(1, sum(abs(value) for value in sums.values()) / 2)
     context['баланс'] = {'x': max(-1, min(1, round((sums['будущее'] - sums['прошлое']) / total, 2))),
                         'y': max(-1, min(1, round((sums['ресурсы'] - sums['обязательства']) / total, 2)))}
-    context['сигнал'] = sums['обязательства'] > 3 * max(1, sums['ресурсы'])
+    context['сигнал'] = sums['обязательства'] > context.get('сигнал_множитель', 3) * max(1, sums['ресурсы'])
     return context
 
 

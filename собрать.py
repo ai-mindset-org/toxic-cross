@@ -23,7 +23,8 @@ if not _ручное.exists():
 статусы = {}; авто = []; события_авто = []; факты = []; наложения = {}
 for имя in АДАПТЕРЫ:
     t0 = dt.datetime.now()
-    if имя in выкл:
+    source_key = {'календарь_ics': 'календарь', 'calendar_bridge': 'календарь', 'задачи_json': 'задачи'}.get(имя, имя)
+    if имя in выкл or not правила['источники'].get(source_key, {}).get('enabled', True):
         статусы[имя] = {"статус": "off", "заметка": "выключен флагом", "когда": None}; continue
     try:
         m = importlib.import_module(f'адаптеры.{имя}'); r = m.собрать(правила, сейчас)
@@ -47,7 +48,10 @@ for л, blk in ручное['лучи'].items():
         e['источник'] = e.get('источник') or 'ручное'; e['вес_база'] = e['вес']
         e.setdefault('факт', 'поставлено рукой: ' + e.get('источник', ''))
         e.setdefault('путь', 'источники/ручное.json')
-        manual_evidence(e); weight_evidence(e, e['вес'])
+        if not правила['источники'].get(e['источник'], {}).get('enabled', True): continue
+        manual_evidence(e)
+        if правила.get('configurator', {}).get('version') == 1: prepare_weight(e, правила, сейчас)
+        else: weight_evidence(e, e['вес'])
         seen[board_key(e)] = e
 наложения.update(read_overrides(H))
 for e in seen.values():
@@ -63,12 +67,14 @@ for л in лучи:
 
 день = sorted(события_авто + [s for s in ручное.get('день', []) if a.дата], key=lambda s: s['t'])
 факты = sorted(факты, key=lambda f: f.get('t') or '')
-сигнал = лучи['обязательства']['сумма'] > 3 * max(1, лучи['ресурсы']['сумма'])
+сигнал = лучи['обязательства']['сумма'] > правила.get('сигнал', {}).get('множитель', 3) * max(1, лучи['ресурсы']['сумма'])
 всего = max(1, sum(abs(v['сумма']) for v in лучи.values()) / 2)
 out = {"дата": сейчас.strftime('%Y-%m-%d'), "собрано": сейчас.isoformat(timespec='minutes'),
        "fictional": _ручное.name == 'ручное.json' and not os.environ.get('KREST_ICS') and not (H/'источники/calendar-control.json').exists() and not (H/'источники/задачи.local.json').exists(),
        "человек": ручное.get('человек', 'образец'), "лучи": лучи, "день": день, "факты": факты,
        "источники": статусы, "правила_версия": правила.get("версия", "открытая v1"), "сигнал": сигнал,
+       "сигнал_множитель": правила.get("сигнал", {}).get("множитель", 3),
+       "configurator": правила.get("configurator"),
        "переворот": правила['переворот'], "охваты": правила['охваты'],
        "баланс": {"x": max(-1,min(1,round((лучи['будущее']['сумма'] - лучи['прошлое']['сумма']) / всего, 2))),
                   "y": max(-1,min(1,round(-(лучи['обязательства']['сумма'] - лучи['ресурсы']['сумма']) / всего, 2)))}}

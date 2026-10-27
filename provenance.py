@@ -75,6 +75,11 @@ def atomic_json(path, value):
 def calendar_adapter(root):
     """Full and partial collection use the same installed calendar model."""
     root = Path(root)
+    rules_path = root / 'правила.json'
+    if rules_path.exists():
+        config = json.loads(rules_path.read_text()).get('configurator', {}) or {}
+        if config.get('version') == 1:
+            return 'calendar_bridge' if config.get('enabled', {}).get('bridge') else 'календарь_ics'
     if (root / 'адаптеры/календарь.py').exists(): return 'календарь'
     if (root / 'источники/calendar-control.json').exists(): return 'calendar_bridge'
     return 'календарь_ics'
@@ -116,7 +121,10 @@ def apply_override(item, override):
 def prepare_weight(item, rules, now, adapter=None, captured=None):
     if adapter is not None: adapter_evidence(item, adapter, now, captured)
     item['вес_база'] = item['вес']
-    scale = rules['источники'].get(item['источник'], {}).get('масштаб', 1)
+    source_rules = rules['источники'].get(item['источник'], {})
+    if rules.get('configurator', {}).get('version') == 1 and source_rules.get('охват') in rules['охваты']:
+        item['охват'] = source_rules['охват']
+    scale = source_rules.get('масштаб', 1)
     decay = item_decay(item, rules, now)
     weight_evidence(item, item['вес'], scale, decay)
     item['вес'] = round(item['вес'] * scale * decay, 2)

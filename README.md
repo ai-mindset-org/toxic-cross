@@ -18,6 +18,16 @@ Mac and workspace 3.1 are an **experimental developer preview**. The weights and
 | Mac app | Native AppKit panel, calendar context, optional feeling/energy ratings, private notes, source freshness and aggregate history. Apple silicon, macOS 13+. |
 | Source kit | Native Swift source, web workspace, rule engine, adapters and a loopback API you can run yourself. |
 
+## Set up with your agent
+
+[Configure your rules](https://apps.aimindset.org/krest/configure.html), then give Claude Code or Codex this prompt:
+
+```text
+Set up Krest on this computer from https://github.com/ai-mindset-org/toxic-cross. Read AGENTS.md and skills/krest/SKILL.md in that repository and follow the local setup protocol. Start with the fictional day, then help me connect one source and apply my attached правила.json. Keep the server on loopback. Ask before installing the Mac app, sending bot messages or enabling any schedule. Show me the working field and a verification receipt.
+```
+
+See [package choices](docs/PACKAGE.md), [public boundary](docs/PUBLIC-BOUNDARY.md) and [optional operating templates](docs/OPERATIONS.md).
+
 ## Build the Mac app
 
 Requires Apple's Xcode Command Line Tools.
@@ -66,3 +76,7 @@ Code: [MIT](LICENSE). Bundled fonts: [SIL OFL](ASSET-LICENSES.md). Privacy, stor
 The initial HTML includes complete OG/Twitter metadata and a versioned 1200×630 static PNG. `python3 render_preview.py` reproduces the cover from bundled fonts and the authentic Krest/family SVGs using Pillow. Configure deployment-specific canonical and image URLs for a self-hosted installation. The public cover contains no personal records.
 
 Sources can also display an owner-scoped promise registry. Machine-extracted candidates remain separate from scored obligations. Full IDs, exact/window/unknown deadlines, source links and reconciliation flags remain inspectable. Explicit reviewed task identities connect promise, Linear and accepted focus evidence with one representative weight. Existing manual model annotations stay labelled. See [commitment evidence](docs/COMMITMENT-LINKS.md).
+
+## Origin
+
+The “toxic cross” model is Seva Ustinov’s idea, discussed on 15 September 2026. Krest is an attempt to test it hands-on with live data.

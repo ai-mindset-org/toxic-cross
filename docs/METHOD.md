@@ -47,3 +47,7 @@ Ecological momentary assessment literature supports careful attention to timing,
 Reappraisal research studies specific strategies in specific settings. Results depend on context and differ from acceptance or practical action. It provides a reason to offer an optional writing prompt, not a claim of lasting product benefit. See [reappraisal experiments](https://pubmed.ncbi.nlm.nih.gov/21999941/), [acceptance versus reappraisal](https://pmc.ncbi.nlm.nih.gov/articles/PMC6188704/) and [stressor controllability](https://www.psychologicalscience.org/journals/psychological-science/0956797613496434/).
 
 The full source ledger is in [RESEARCH-2026-10-16.md](RESEARCH-2026-10-16.md). Project/vendor documentation is primary evidence of what those projects state, with interested provenance. Academic findings are bounded by populations and protocols. None evaluates Krest itself.
+
+## Origin
+
+The “toxic cross” model is Seva Ustinov’s idea, discussed on 15 September 2026. Krest is an attempt to test it hands-on with live data.
