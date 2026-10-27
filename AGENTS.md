@@ -36,7 +36,7 @@ Set KREST_MAIL to the person's own address only when needed to identify accepted
 
 ## 3. Apply configurator rules
 
-Download `правила.json` at https://apps.aimindset.org/krest/configure.html or use the attached JSON. Back up existing rules outside tracked files; validate with `python3 -m json.tool`. Keep all four arm keys, source definitions, time and reframe settings. Replace the root rules only after review, then run `python3 собрать.py`. The configurator's `enabled` flags control built-in sources; API tracker selection records a setup request and requires a new adapter. An enabled Calendar Control selection needs a shared snapshot to replace ICS. Labels change the cross headings; language does not translate source content.
+Download `правила.json` at https://apps.aimindset.org/krest/build.html#configure or use the attached JSON. Back up existing rules outside tracked files; validate with `python3 -m json.tool`. Keep all four arm keys, source definitions, time and reframe settings. Replace the root rules only after review, then run `python3 собрать.py`. The configurator's `enabled` flags control built-in sources; API tracker selection records a setup request and requires a new adapter. An enabled Calendar Control selection needs a shared snapshot to replace ICS. Labels change the cross headings; language does not translate source content.
 
 Compare `день.json` arm totals and x/y before/after a source weight change. Configurator version 1 applies source scales and decay to manual items as well as adapters. Older rules retain legacy manual weighting. The signal uses obligations > N × max(1, resources), default N=3. The floor prevents division-like instability when resources are zero or negative.
 

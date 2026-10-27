@@ -20,7 +20,7 @@ Mac and workspace 3.1 are an **experimental developer preview**. The weights and
 
 ## Set up with your agent
 
-[Configure your rules](https://apps.aimindset.org/krest/configure.html), then give Claude Code or Codex this prompt:
+[Configure your rules](https://apps.aimindset.org/krest/build.html#configure), then give Claude Code or Codex this prompt:
 
 ```text
 Set up Krest on this computer from https://github.com/ai-mindset-org/toxic-cross. Read AGENTS.md and skills/krest/SKILL.md in that repository and follow the local setup protocol. Start with the fictional day, then help me connect one source and apply my attached правила.json. Keep the server on loopback. Ask before installing the Mac app, sending bot messages or enabling any schedule. Show me the working field and a verification receipt.

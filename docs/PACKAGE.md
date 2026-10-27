@@ -7,3 +7,5 @@
 **Own server with an agent.** A local Python board plus explicit rules and one read-only source gives the most adaptable field. Claude Code or Codex follows AGENTS.md and skills/krest/SKILL.md. Start on loopback on the current computer; Linux hosting, authenticated private remote access, a personal bot and schedules are optional extensions requiring consent. The page therefore uses one family header, a thin Krest row and four ordered steps: try → inspect the Mac app → configure → set up with an agent. Native screenshots use fictional fixtures; the video slot is assets/krest-demo.mp4, initially poster-only.
 
 Design: preserve the accepted N1 apps storefront, shared Plex typography, light surface and restrained red; reuse the existing workspace cross renderer. Configuration exports the existing engine schema, with versioned optional settings. Source selections request setup; no account is connected by the configurator.
+
+The configurator lives in the existing legacy setup document, `build.html#configure`. Shared configuration links use `build.html?config=…#configure`. No new hosting HTML or parent-page registration is introduced.

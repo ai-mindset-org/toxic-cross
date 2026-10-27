@@ -59,4 +59,4 @@ An optional ritual job uses this same one-shot service pattern with `ExecStart=.
 
 ## Video slot
 
-The package page has a poster-only `<video>` and a source with `data-src="assets/krest-demo.mp4"`. When the reviewed demo film is ready, place that file in site/assets/, replace `data-src` with `src`, and update the adjacent availability caption in both languages. Mirror those files to the hosting repo; no native app rebuild is needed.
+The package page has a poster-only `<video>` and a source with `data-src="assets/krest-demo.mp4"`. When the reviewed demo film is ready, place that file in site/assets/, replace `data-src` with `src`, enable `controls`, and update the adjacent availability caption in both languages. Mirror those files to the hosting repo; no native app rebuild is needed.
